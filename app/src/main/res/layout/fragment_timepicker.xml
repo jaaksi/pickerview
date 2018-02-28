@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical">
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <CheckBox
+      android:id="@+id/cb_year"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:checked="true"
+      android:text="年" />
+
+    <CheckBox
+      android:id="@+id/cb_month"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:checked="true"
+      android:text="月" />
+
+    <CheckBox
+      android:id="@+id/cb_day"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:checked="true"
+      android:text="日" />
+
+    <CheckBox
+      android:id="@+id/cb_hour"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:checked="true"
+      android:text="时" />
+
+    <CheckBox
+      android:id="@+id/cb_minute"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:checked="true"
+      android:text="分" />
+
+    <Button
+      android:id="@+id/btn_choose_type"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="点击设置显示类型" />
+  </LinearLayout>
+
+  <Button
+    android:id="@+id/btn_show"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:lines="2"
+    android:text="show"
+    android:textSize="18dp" />
+
+</LinearLayout>

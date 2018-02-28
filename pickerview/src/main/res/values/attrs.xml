@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- 添加线模式 -->
+  <declare-styleable name="BasePickerView">
+    <attr name="pv_visible_item_count" format="integer" />
+    <!-- item尺寸 -->
+    <attr name="pv_item_size" format="dimension" />
+    <!-- 中间item的位置,默认为0-->
+    <attr name="pv_center_item_position" format="integer" />
+    <!-- 是否循环滚动，默认为true，开启-->
+    <attr name="pv_is_circulation" format="boolean" />
+    <!-- 不允许父组件拦截触摸事件，设置为true为不允许拦截，此时该设置才生效 -->
+    <attr name="pv_disallow_intercept_touch" format="boolean" />
+    <!-- 滚动的方向-->
+    <attr name="pv_orientation" format="string">
+      <enum name="horizontal" value="1" />
+      <enum name="vertical" value="2" />
+    </attr>
+  </declare-styleable>
+
+  <declare-styleable name="PickerView">
+    <!-- out min text size -->
+    <attr name="pv_min_text_size" format="dimension" />
+    <!-- center max text size -->
+    <attr name="pv_max_text_size" format="dimension" />
+    <!-- out text color -->
+    <attr name="pv_start_color" format="color" />
+    <!-- center text color -->
+    <attr name="pv_end_color" format="color" />
+    <!-- alignment -->
+    <attr name="pv_alignment" format="enum">
+      <enum name="center" value="1" />
+      <enum name="left" value="2" />
+      <enum name="right" value="3" />
+    </attr>
+  </declare-styleable>
+
+</resources>
