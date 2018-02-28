@@ -79,6 +79,8 @@ public abstract class BasePickerView<T> extends View {
   private Paint mPaint;
   private CenterDecoration mCenterDecoration;
   public static final boolean DEFAULT_DRAW_INDICATOR_NO_DATA = true;
+  // 当没有数据时是否绘制指示器
+  private boolean mDrawIndicatorNoData = DEFAULT_DRAW_INDICATOR_NO_DATA;
   private boolean mCanTap = true; // 单击切换选项或触发点击监听器
   private boolean mIsHorizontal = false; // 是否水平滚动
 
@@ -137,6 +139,15 @@ public abstract class BasePickerView<T> extends View {
   }
 
   /**
+   * 设置没有数据时是否绘制指示器
+   *
+   * @param drawIndicatorNoData 没有数据时是否绘制指示器
+   */
+  public void setDrawIndicatorNoData(boolean drawIndicatorNoData) {
+    mDrawIndicatorNoData = drawIndicatorNoData;
+  }
+
+  /**
    * 设置内容Formatter
    *
    * @param formatter formatter
@@ -151,13 +162,16 @@ public abstract class BasePickerView<T> extends View {
 
   @Override protected void onDraw(Canvas canvas) {
 
-    if (mAdapter == null || mAdapter.getItemCount() <= 0) return;
+    boolean noData = mAdapter == null || mAdapter.getItemCount() <= 0;
 
-    if (mCenterDecoration == null) {
-      mCenterDecoration = new DefaultCenterDecoration(getContext());
+    if (!noData || (mDrawIndicatorNoData)) {
+      if (mCenterDecoration == null) {
+        mCenterDecoration = new DefaultCenterDecoration(getContext());
+      }
+      mCenterDecoration.drawIndicator(this, canvas, mCenterX, mCenterY, mCenterX + mItemWidth,
+        mCenterY + mItemHeight);
     }
-    mCenterDecoration.drawIndicator(this, canvas, mCenterX, mCenterY, mCenterX + mItemWidth,
-      mCenterY + mItemHeight);
+    if (noData) return;
 
     mNeedCirculation = mIsCirculation && mVisibleItemCount < mAdapter.getItemCount();
 
@@ -171,8 +185,7 @@ public abstract class BasePickerView<T> extends View {
     if (mNeedCirculation) {
       start = length;
     } else {
-      start =
-        Math.min(length, mAdapter.getItemCount());
+      start = Math.min(length, mAdapter.getItemCount());
     }
 
     // 2.绘制mCenterPoint上下两边的item：当前选中的绘制在mCenter
