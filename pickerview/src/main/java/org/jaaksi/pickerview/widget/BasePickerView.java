@@ -38,6 +38,7 @@ public abstract class BasePickerView<T> extends View {
 
   private boolean mIsInertiaScroll = true; // 快速滑动时是否惯性滚动一段距离，默认开启
   private boolean mIsCirculation = false; // 是否循环滚动，默认关闭
+  private boolean mNeedCirculation = false; // 是否有必要循环滚动
 
   /*
     不允许父组件拦截触摸事件，设置为true为不允许拦截，此时该设置才生效
@@ -158,16 +159,20 @@ public abstract class BasePickerView<T> extends View {
     mCenterDecoration.drawIndicator(this, canvas, mCenterX, mCenterY, mCenterX + mItemWidth,
       mCenterY + mItemHeight);
 
+    mNeedCirculation = mIsCirculation && mVisibleItemCount < mAdapter.getItemCount();
+
     // 1.只绘制可见的item，找到绘制的起始点
     // 比较头和尾找距离中心点较远的
     int length = Math.max(mCenterPosition + 1, mVisibleItemCount - mCenterPosition);
     int position;
     //int start = Math.min(length, mAdapter.getItemCount());
     int start;
-    if (mIsCirculation) {
+    // fix 当itemcount <= visibleCount时，设置循环也不进行循环绘制
+    if (mNeedCirculation) {
       start = length;
     } else {
-      start = Math.min(length, mAdapter.getItemCount());
+      start =
+        Math.min(length, mAdapter.getItemCount());
     }
 
     // 2.绘制mCenterPoint上下两边的item：当前选中的绘制在mCenter
@@ -177,7 +182,7 @@ public abstract class BasePickerView<T> extends View {
         // 根据是否循环，计算出偏离mCenterPoint i个item对应的position
         position = mSelected - i < 0 ? mAdapter.getItemCount() + mSelected - i : mSelected - i;
         // 传入位置信息，绘制item
-        if (mIsCirculation) {
+        if (mNeedCirculation) {
           drawItem(canvas, mAdapter.getItem(position), position, -i, mMoveLength,
             mCenterPoint + mMoveLength - i * mItemSize);
         } else if (mSelected - i >= 0) { // 非循环滚动
@@ -191,7 +196,7 @@ public abstract class BasePickerView<T> extends View {
           mSelected + i >= mAdapter.getItemCount() ? mSelected + i - mAdapter.getItemCount()
             : mSelected + i;
         // 传入位置信息，绘制item
-        if (mIsCirculation) {
+        if (mNeedCirculation) {
           drawItem(canvas, mAdapter.getItem(position), position, i, mMoveLength,
             mCenterPoint + mMoveLength + i * mItemSize);
         } else if (mSelected + i < mAdapter.getItemCount()) { // 非循环滚动
@@ -398,7 +403,7 @@ public abstract class BasePickerView<T> extends View {
       int span = (int) (mMoveLength / mItemSize);
       mSelected -= span;
       if (mSelected < 0) {  // 滚动顶部，判断是否循环滚动
-        if (mIsCirculation) {
+        if (mNeedCirculation) {
           do {
             mSelected = mAdapter.getItemCount() + mSelected;
           } while (mSelected < 0); // 当越过的item数量超过一圈时
@@ -421,7 +426,7 @@ public abstract class BasePickerView<T> extends View {
       int span = (int) (-mMoveLength / mItemSize);
       mSelected += span;
       if (mSelected >= mAdapter.getItemCount()) { // 滚动末尾，判断是否循环滚动
-        if (mIsCirculation) {
+        if (mNeedCirculation) {
           do {
             mSelected = mSelected - mAdapter.getItemCount();
           } while (mSelected >= mAdapter.getItemCount()); // 当越过的item数量超过一圈时
@@ -536,7 +541,7 @@ public abstract class BasePickerView<T> extends View {
    */
   public void autoScrollFast(final int position, long duration, float speed,
     final Interpolator interpolator) {
-    if (mIsAutoScrolling || !mIsCirculation) {
+    if (mIsAutoScrolling || !mNeedCirculation) {
       return;
     }
     cancelScroll();
@@ -811,11 +816,11 @@ public abstract class BasePickerView<T> extends View {
   }
 
   public boolean isIsCirculation() {
-    return mIsCirculation;
+    return mNeedCirculation;
   }
 
   /**
-   * 设置是否循环绘制
+   * 设置是否循环绘制，如果 adapter.getItemCount < visibleCount，则即使设置为循环，也无效
    *
    * @param isCirculation 是否循环
    */
