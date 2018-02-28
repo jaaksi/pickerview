@@ -2,7 +2,9 @@ package org.jaaksi.pickerview.demo;
 
 import android.app.Application;
 import android.graphics.Color;
+import android.graphics.Rect;
 import org.jaaksi.pickerview.picker.BasePicker;
+import org.jaaksi.pickerview.util.Util;
 import org.jaaksi.pickerview.widget.DefaultCenterDecoration;
 import org.jaaksi.pickerview.widget.PickerView;
 
@@ -29,6 +31,9 @@ public class MyApplication extends Application {
 
     // BasePicker
     BasePicker.sDefaultPickerBackgroundColor = Color.WHITE;
+    // picker padding
+    //int padding = Util.dip2px(this, 20);
+    //BasePicker.sPaddingRect = new Rect(padding, padding, padding, padding);
 
     // DefaultCenterDecoration
     DefaultCenterDecoration.sDEFAULT_LINE_WIDTH = 1;

@@ -3,6 +3,7 @@ package org.jaaksi.pickerview.picker;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.support.annotation.CallSuper;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
@@ -29,6 +30,8 @@ import org.jaaksi.pickerview.widget.PickerView;
  */
 
 public abstract class BasePicker implements View.OnClickListener {
+  // pickerview父容器的padding
+  public static Rect sPaddingRect;
   public static int sDefaultPickerBackgroundColor = Color.WHITE;
 
   protected Context mContext;
@@ -93,6 +96,13 @@ public abstract class BasePicker implements View.OnClickListener {
     mPickerContainer.setBackgroundColor(color);
   }
 
+  /**
+   * 设置pickerview父容器padding 单位:px
+   */
+  public void setPadding(int left, int top, int right, int bottom) {
+    mPickerContainer.setPadding(left, top, right, bottom);
+  }
+
   public void setTag(Object tag) {
     mTag = tag;
   }
@@ -123,8 +133,11 @@ public abstract class BasePicker implements View.OnClickListener {
     mPickerContainer = new LinearLayout(mContext);
     mPickerContainer.setOrientation(LinearLayout.HORIZONTAL);
     mPickerContainer.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
+    if (sPaddingRect != null) {
+      setPadding(sPaddingRect.left, sPaddingRect.top, sPaddingRect.right, sPaddingRect.bottom);
+    }
     if (sDefaultPickerBackgroundColor != Color.TRANSPARENT) {
-      mPickerContainer.setBackgroundColor(sDefaultPickerBackgroundColor);
+      setPickerBackgroundColor(sDefaultPickerBackgroundColor);
     }
     mRootLayout.addView(mPickerContainer);
 

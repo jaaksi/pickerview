@@ -41,8 +41,6 @@ public class PickerConfigFragment extends BaseFragment
     decoration.setLineColor(Color.RED);
     //.setDrawable(Color.parseColor("#999999"));
 
-    // 设置padding
-    int padding = Util.dip2px(mActivity, 20);
     mPicker =
       new OptionPicker.Builder(mActivity, 3, this).setInterceptor(new BasePicker.Interceptor() {
         @Override public void intercept(PickerView pickerView) {
@@ -52,6 +50,9 @@ public class PickerConfigFragment extends BaseFragment
           pickerView.setTextSize(15, 20);
         }
       }).create();
+    // 设置padding
+    int padding = Util.dip2px(mActivity, 20);
+    mPicker.setPadding(padding, padding, padding, padding);
     mPicker.setPickerBackgroundColor(Color.parseColor("#eeeeee"));
 
     // 设置弹窗
