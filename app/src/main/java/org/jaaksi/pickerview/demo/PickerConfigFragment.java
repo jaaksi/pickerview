@@ -48,7 +48,7 @@ public class PickerConfigFragment extends BaseFragment
       new OptionPicker.Builder(mActivity, 3, this).setInterceptor(new BasePicker.Interceptor() {
         @Override public void intercept(PickerView pickerView) {
           int level = (int) pickerView.getTag();
-          pickerView.setVisibleItemCount(5);
+          pickerView.setVisibleItemCount(3);
           // setInterceptor 可以根据level区分设置pickerview属性
           pickerView.setCenterDecoration(decoration);
           pickerView.setTextSize(15, 20);

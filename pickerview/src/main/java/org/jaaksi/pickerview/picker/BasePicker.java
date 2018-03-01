@@ -12,6 +12,7 @@ import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
@@ -39,7 +40,8 @@ public abstract class BasePicker implements View.OnClickListener {
 
   private Dialog mPickerDialog;
   private LinearLayout mRootLayout;
-  public static ITopBar DEFAULT_TOPBAR_HANDLER = null;
+  // 自定义default topbar
+  public static ITopBar sDefaultTopBar = null;
   // topbar的设置，title，确定按钮等都通过这个控制，picker自身不处理
   private ITopBar mITopBar;
   protected OnPickerChooseListener mPickerChooseListener;
@@ -57,6 +59,11 @@ public abstract class BasePicker implements View.OnClickListener {
     initPickerDialog();
   }
 
+  /**
+   * 设置picker取消，确定按钮监听。可用于拦截选中操作。
+   *
+   * @param pickerChooseListener listener
+   */
   public BasePicker setPickerChooseListener(OnPickerChooseListener pickerChooseListener) {
     mPickerChooseListener = pickerChooseListener;
     return this;
@@ -71,15 +78,25 @@ public abstract class BasePicker implements View.OnClickListener {
     addTopBar();
   }
 
+  /**
+   * 获取TopBar
+   */
   public ITopBar getTopBar() {
     return mITopBar;
   }
 
+  /**
+   * 获取pickerview的父容器，创建{@link DefaultTopBar#DefaultTopBar(ViewGroup)}时必须指定parent
+   *
+   * @return pickerview的父容器
+   */
   public LinearLayout getRootLayout() {
     return mRootLayout;
   }
 
   /**
+   * 设置拦截器，用于用于在pickerview创建时拦截，设置pickerview的属性。Picker内部并不提供对PickerView的设置方法，
+   * 而是通过Interceptor实现，实现Picker和PickerView的属性设置解耦。
    * 必须在调用 {@link #createPickerView(Object, float)}之前设置。
    * 子类应该在Builder中提供该方法。
    */
@@ -103,6 +120,11 @@ public abstract class BasePicker implements View.OnClickListener {
     mPickerContainer.setPadding(left, top, right, bottom);
   }
 
+  /**
+   * setTag用法同{@link View#setTag(Object)}
+   *
+   * @param tag tag
+   */
   public void setTag(Object tag) {
     mTag = tag;
   }
@@ -122,8 +144,8 @@ public abstract class BasePicker implements View.OnClickListener {
     mRootLayout.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
 
     //if (mITopBar == null) {
-    if (DEFAULT_TOPBAR_HANDLER != null) {
-      mITopBar = DEFAULT_TOPBAR_HANDLER;
+    if (sDefaultTopBar != null) {
+      mITopBar = sDefaultTopBar;
     } else {
       mITopBar = new DefaultTopBar(mRootLayout);
     }
@@ -164,7 +186,7 @@ public abstract class BasePicker implements View.OnClickListener {
   /**
    * {@link #createPickerView(Object, float)}
    *
-   * @return 调用
+   * @return Picker中所有的pickerview集合
    */
   public List<PickerView> getPickerViews() {
     return mPickerViews;
@@ -234,6 +256,12 @@ public abstract class BasePicker implements View.OnClickListener {
     return false;
   }
 
+  /**
+   * setTag 用法同{@link View#setTag(int, Object)}
+   *
+   * @param key key R.id.xxx
+   * @param tag tag
+   */
   public void setTag(int key, final Object tag) {
     // If the package id is 0x00 or 0x01, it's either an undefined package
     // or a framework id
@@ -254,12 +282,15 @@ public abstract class BasePicker implements View.OnClickListener {
   }
 
   /**
-   * 可以在new之后设置dialog属性
+   * 获取Picker弹窗。可以在new之后设置dialog属性
    */
   public Dialog getPickerDialog() {
     return mPickerDialog;
   }
 
+  /**
+   * 显示picker弹窗
+   */
   public void show() {
     mPickerDialog.show();
   }
@@ -285,6 +316,9 @@ public abstract class BasePicker implements View.OnClickListener {
     }
   }
 
+  /**
+   * 点击确定按钮的回调
+   */
   protected abstract void onConfirm();
 
   protected void onCancel() {
@@ -295,6 +329,11 @@ public abstract class BasePicker implements View.OnClickListener {
    * 用于子类修改设置PickerView属性
    */
   public interface Interceptor {
+    /**
+     * 拦截
+     *
+     * @param pickerView pickerView
+     */
     void intercept(PickerView pickerView);
   }
 

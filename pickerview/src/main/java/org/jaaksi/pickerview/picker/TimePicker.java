@@ -298,7 +298,7 @@ public class TimePicker extends BasePicker
   }
 
   @Override
-  public CharSequence handle(BasePickerView pickerView, int position, CharSequence charSequence) {
+  public CharSequence format(BasePickerView pickerView, int position, CharSequence charSequence) {
     if (mFormatter == null) return charSequence;
     int type = (int) pickerView.getTag();
     int num = Integer.parseInt(charSequence.toString());
@@ -397,10 +397,10 @@ public class TimePicker extends BasePicker
 
   public interface Formatter {
     /**
-     * 可以设置时间
+     * 根据type和num格式化时间
      *
      * @param picker picker
-     * @param type 并不是模式，而是当前item所属的type
+     * @param type 并不是模式，而是当前item所属的type，如年，时
      * @param position position
      * @param num position item显示的数字
      */

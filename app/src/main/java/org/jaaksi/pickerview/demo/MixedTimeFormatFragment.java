@@ -41,7 +41,7 @@ public class MixedTimeFormatFragment extends BaseFragment
       .setRangDate(1517771651000L, 1577976666000L)
       .setFormatter(new MixedTimePicker.DefaultFormatter() {
         @Override
-        public CharSequence handle(MixedTimePicker picker, int type, Date date, int position) {
+        public CharSequence format(MixedTimePicker picker, int type, Date date, int position) {
           if (type == MixedTimePicker.TYPE_DATE) {
             CharSequence text;
             int dayOffset = DateUtil.getDayOffset(date.getTime(), System.currentTimeMillis());
@@ -54,7 +54,7 @@ public class MixedTimeFormatFragment extends BaseFragment
             }
             return text;
           }
-          return super.handle(picker, type, date, position);
+          return super.format(picker, type, date, position);
         }
       })
       .create();

@@ -14,7 +14,7 @@ import org.jaaksi.pickerview.widget.PickerView;
  * 与https://github.com/Bigkoo/Android-PickerView对比
  * 1.支持设置层级
  * 2.构造数据源简单，只需要实现OptionDataSet接口
- * 3.支持设置选中项，内部处理选中项逻辑，避免用户麻烦的遍历处理
+ * 3.支持通过选中的value设置选中项，内部处理选中项逻辑，避免用户麻烦的遍历处理
  */
 
 public class OptionPicker extends BasePicker
@@ -48,7 +48,7 @@ public class OptionPicker extends BasePicker
   }
 
   /**
-   * 根据values初始化选中的position并初始化pickerview数据
+   * 根据选中的values初始化选中的position并初始化pickerview数据
    *
    * @param options data
    * @param values 选中数据的value{@link OptionDataSet#getValue()}
@@ -60,7 +60,7 @@ public class OptionPicker extends BasePicker
   }
 
   /**
-   * 根据values初始化选中的position并初始化pickerview数据
+   * 根据选中的values初始化选中的position
    *
    * @param values 选中数据的value{@link OptionDataSet#getValue()}，如果values[0]==null，则进行默认选中，其他为null认为没有该列
    */
@@ -130,6 +130,9 @@ public class OptionPicker extends BasePicker
     reset();
   }
 
+  /**
+   * @return 数据集
+   */
   public List<? extends OptionDataSet> getOptions() {
     return mOptions;
   }
@@ -138,6 +141,11 @@ public class OptionPicker extends BasePicker
     return mHierarchy;
   }
 
+  /**
+   * 获取选中的下标
+   *
+   * @return 选中的下标，数组size=mHierarchy，如果为-1表示该列没有数据
+   */
   public int[] getSelectedPosition() {
     return mSelectedPosition;
   }
@@ -169,7 +177,9 @@ public class OptionPicker extends BasePicker
   }
 
   /**
-   * @return 选中的选项，如果指定index为null则表示该列没有
+   * 获取选中的选项
+   *
+   * @return 选中的选项，如果指定index为null则表示该列没有数据
    */
   public OptionDataSet[] getSelectedOptions() {
     OptionDataSet[] optionDataSets = new OptionDataSet[mHierarchy];
@@ -204,7 +214,7 @@ public class OptionPicker extends BasePicker
   }
 
   @Override
-  public CharSequence handle(BasePickerView pickerView, int position, CharSequence charSequence) {
+  public CharSequence format(BasePickerView pickerView, int position, CharSequence charSequence) {
     if (mFormatter == null) return charSequence;
     return mFormatter.format(this, (int) pickerView.getTag(), position, charSequence);
   }
@@ -228,11 +238,21 @@ public class OptionPicker extends BasePicker
       mOnOptionSelectListener = listener;
     }
 
+    /**
+     * 设置内容 Formatter
+     *
+     * @param formatter formatter
+     */
     public Builder setFormatter(Formatter formatter) {
       mFormatter = formatter;
       return this;
     }
 
+    /**
+     * 设置拦截器
+     *
+     * @param interceptor 拦截器
+     */
     public Builder setInterceptor(Interceptor interceptor) {
       mInterceptor = interceptor;
       return this;

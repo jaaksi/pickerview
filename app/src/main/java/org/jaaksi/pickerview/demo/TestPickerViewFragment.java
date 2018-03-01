@@ -1,7 +1,6 @@
 package org.jaaksi.pickerview.demo;
 
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.view.View;
 import org.jaaksi.pickerview.adapter.NumericWheelAdapter;
 import org.jaaksi.pickerview.util.Util;
@@ -14,7 +13,7 @@ import org.jaaksi.pickerview.widget.PickerView;
  * description：
  */
 
-public class TestPickerViewFragment extends BaseFragment implements BasePickerView.Formatter {
+public class TestPickerViewFragment extends BaseFragment {
   PickerView<Integer> mPickerView;
 
   @Override protected int getLayoutId() {
@@ -33,14 +32,20 @@ public class TestPickerViewFragment extends BaseFragment implements BasePickerVi
     mPickerView.setDisallowInterceptTouch(false);
     // 覆盖xml设置的7
     mPickerView.setVisibleItemCount(5);
-    mPickerView.setFormatter(this);
-    //mPickerView.setItemSize(60);
-    DefaultCenterDecoration centerDecoration = new DefaultCenterDecoration(getActivity());
-    centerDecoration.setLineColor(Color.GREEN);
+    mPickerView.setItemSize(50);
+    // 格式化内容
+    mPickerView.setFormatter(new BasePickerView.Formatter() {
+      @Override public CharSequence format(BasePickerView pickerView, int position,
+        CharSequence charSequence) {
+        return charSequence + "万年";
+      }
+    });
     int margin = Util.dip2px(mActivity, 2);
-    centerDecoration.setMargin(new Rect(0, -margin, 0, -margin));
-    centerDecoration.setLineWidth(1);
-    //centerDecoration.setDrawable(Color.RED);
+    DefaultCenterDecoration centerDecoration =
+      new DefaultCenterDecoration(getActivity()).setLineColor(Color.GREEN)
+        .setMargin(0, -margin, 0, -margin)
+        .setLineWidth(1)
+        .setDrawable(Color.RED);
     mPickerView.setCenterDecoration(centerDecoration);
     //mPickerView.setSelectedPosition(1);
     // 设置centerPosition
@@ -49,10 +54,5 @@ public class TestPickerViewFragment extends BaseFragment implements BasePickerVi
         mPickerView.setCenterPosition(1);
       }
     }, 1000);
-  }
-
-  @Override
-  public CharSequence handle(BasePickerView pickerView, int position, CharSequence charSequence) {
-    return charSequence + "万年";
   }
 }

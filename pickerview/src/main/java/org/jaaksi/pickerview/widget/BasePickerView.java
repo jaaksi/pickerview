@@ -23,18 +23,22 @@ import org.jaaksi.pickerview.util.Util;
  * 滚动选择器,带惯性滑动
  * https://github.com/1993hzw/Androids/blob/master/androids/src/cn/forward/androids/views/ScrollPickerView.java
  * 做一下修改：
- * 1.改为adapter填充数据，不再直接持有数据源。
- * 2.提供接口Formatter 外界可以对显示的文案处理。比如添加把2018变成2018年，8（月）变成 08月
- * 3.增加属性itemSize，然后根据itemCount计算总高度，而不是设置总高度然后均分
- * 4.绘制中心item改为CenterDecoration控制，用户可以自定义，更强大。
- * 5.默认选中第0个
- * 6.数据源size < itemCount时绘制不循环
+ * 改为adapter填充数据，不再直接持有数据源。提供两种常用adapter
+ * 增加属性itemSize，支持高度为wrap_content时，根据itemCount和visibleItemCount计算总高度，便于动态改变visibleItemCount
+ * 提供接口Formatter 外界可以对显示的文案处理。比如添加把2018变成2018年，8变成 08月，MixedTimePicker中用处更大
+ * 绘制中心item由绘制drawable改为由接口CenterDecoration控制，提供默认实现。用户可以自定义，更强大，使用更方便
+ * 修改数据源size < visibleItemCount时强制不进行循环
+ * 修改默认选中第0个
  */
 public abstract class BasePickerView<T> extends View {
   private static final String TAG = "BasePickerView";
 
-  private int mVisibleItemCount = 3; // 可见的item数量
-  public static int sDEFAULT_ITEM_SIZE = 50; //dp
+  // 默认可见的item个数5个
+  public static int sDefaultVisibleItemCount = 5;
+  private int mVisibleItemCount = sDefaultVisibleItemCount; // 可见的item数量
+  public static int sDefaultItemSize = 50; //dp
+  // 默认是否循环
+  public static boolean sDefaultIsCirculation = false;
 
   private boolean mIsInertiaScroll = true; // 快速滑动时是否惯性滚动一段距离，默认开启
   private boolean mIsCirculation = false; // 是否循环滚动，默认关闭
@@ -105,12 +109,13 @@ public abstract class BasePickerView<T> extends View {
   }
 
   private void init(AttributeSet attrs) {
+
     if (attrs != null) {
       TypedArray typedArray =
         getContext().obtainStyledAttributes(attrs, R.styleable.BasePickerView);
 
-      mVisibleItemCount =
-        typedArray.getInt(R.styleable.BasePickerView_pv_visible_item_count, getVisibleItemCount());
+      mVisibleItemCount = typedArray.getInt(R.styleable.BasePickerView_pv_visible_item_count,
+        sDefaultVisibleItemCount);
       mItemSize = typedArray.getDimensionPixelSize(R.styleable.BasePickerView_pv_item_size, 0);
       int centerPosition =
         typedArray.getInt(R.styleable.BasePickerView_pv_center_item_position, -1);
@@ -118,15 +123,17 @@ public abstract class BasePickerView<T> extends View {
         setSafeCenterPosition(centerPosition);
       }
       setIsCirculation(
-        typedArray.getBoolean(R.styleable.BasePickerView_pv_is_circulation, isIsCirculation()));
+        typedArray.getBoolean(R.styleable.BasePickerView_pv_is_circulation, sDefaultIsCirculation));
       setDisallowInterceptTouch(
         typedArray.getBoolean(R.styleable.BasePickerView_pv_disallow_intercept_touch,
           isDisallowInterceptTouch()));
       mIsHorizontal =
         typedArray.getInt(R.styleable.BasePickerView_pv_orientation, mIsHorizontal ? 1 : 2) == 1;
       typedArray.recycle();
+    } else {
+      setIsCirculation(sDefaultIsCirculation);
     }
-    if (mItemSize == 0) mItemSize = Util.dip2px(getContext(), sDEFAULT_ITEM_SIZE);
+    if (mItemSize == 0) mItemSize = Util.dip2px(getContext(), sDefaultItemSize);
   }
 
   /**
@@ -882,7 +889,7 @@ public abstract class BasePickerView<T> extends View {
    * @param itemSize dp
    */
   public void setItemSize(int itemSize) {
-    mItemSize = Util.dip2px(getContext(), itemSize <= 0 ? sDEFAULT_ITEM_SIZE : itemSize);
+    mItemSize = Util.dip2px(getContext(), itemSize <= 0 ? sDefaultItemSize : itemSize);
   }
 
   /**
@@ -1026,6 +1033,6 @@ public abstract class BasePickerView<T> extends View {
   }
 
   public interface Formatter {
-    CharSequence handle(BasePickerView pickerView, int position, CharSequence charSequence);
+    CharSequence format(BasePickerView pickerView, int position, CharSequence charSequence);
   }
 }

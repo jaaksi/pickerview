@@ -14,14 +14,14 @@ import org.jaaksi.pickerview.util.Util;
  * 创建时间：2018年02月17日10:55 <br>
  * 作者：fuchaoyang <br>
  * 描述：default centerdecoration
- * 样式：背景图，上下两条线，支持设置线条颜色，宽度
+ * 样式：背景图，上下两条线，支持设置线条颜色，宽度，margin
  */
 
 public class DefaultCenterDecoration implements BasePickerView.CenterDecoration {
-  public static int sDEFAULT_LINE_COLOR = Color.BLUE;
-  public static float sDEFAULT_LINE_WIDTH = 1;
-  public static Drawable sDEFAULT_DRAWABLE;
-  public static Rect sDEFAULT_MARGIN_RECT;
+  public static int sDefaultLineColor = Color.BLUE;
+  public static float sDefaultLineWidth = 1;
+  public static Drawable sDefaultDrawable;
+  public static Rect sDefaultMarginRect;
 
   private Context mContext;
   private Paint mPaint;
@@ -35,10 +35,10 @@ public class DefaultCenterDecoration implements BasePickerView.CenterDecoration 
     mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     mPaint.setStyle(Paint.Style.FILL);
 
-    setLineWidth(sDEFAULT_LINE_WIDTH);
-    setLineColor(sDEFAULT_LINE_COLOR);
-    setDrawable(sDEFAULT_DRAWABLE);
-    setMargin(sDEFAULT_MARGIN_RECT);
+    setLineWidth(sDefaultLineWidth);
+    setLineColor(sDefaultLineColor);
+    setDrawable(sDefaultDrawable);
+    setMargin(sDefaultMarginRect);
   }
 
   /**
@@ -46,7 +46,7 @@ public class DefaultCenterDecoration implements BasePickerView.CenterDecoration 
    *
    * @param lineColor line color 如果设置为Color.TRANSPARENT就不绘制线
    */
-  public DefaultCenterDecoration setLineColor(int lineColor) {
+  public DefaultCenterDecoration setLineColor(@ColorInt int lineColor) {
     mPaint.setColor(lineColor);
     return this;
   }
@@ -54,7 +54,7 @@ public class DefaultCenterDecoration implements BasePickerView.CenterDecoration 
   /**
    * 设置装饰线宽度
    *
-   * @param lineWidth 装饰线宽度
+   * @param lineWidth 装饰线宽度 单位dp
    */
   public DefaultCenterDecoration setLineWidth(float lineWidth) {
     mPaint.setStrokeWidth(Util.dip2px(mContext, lineWidth));

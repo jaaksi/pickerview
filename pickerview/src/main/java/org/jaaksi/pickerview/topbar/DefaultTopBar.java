@@ -30,6 +30,11 @@ public class DefaultTopBar implements ITopBar {
     mTvTitle = mTopBar.findViewById(R.id.tv_title);
   }
 
+  /**
+   * 设置topbar bottom line color
+   *
+   * @param color color
+   */
   public DefaultTopBar setDividerColor(@ColorInt int color) {
     mDivider.setBackgroundColor(color);
     return this;
@@ -62,7 +67,13 @@ public class DefaultTopBar implements ITopBar {
     return mBtnConfirm;
   }
 
-  @Override public TextView getTitleView() {
+  /**
+   * 获取TopBar的title view
+   * ITOpBar中并不提供title相关的方法，但自定义TopBar中应该实现这个方法。
+   *
+   * @return title
+   */
+  public TextView getTitleView() {
     return mTvTitle;
   }
 }

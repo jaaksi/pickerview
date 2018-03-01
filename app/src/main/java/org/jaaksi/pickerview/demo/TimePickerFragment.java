@@ -26,6 +26,7 @@ public class TimePickerFragment extends BaseFragment
   private TimePicker mTimePicker;
   public static final DateFormat sSimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
   private int mCurrYear;
+  private long mLoveTimes;
 
   @Override protected int getLayoutId() {
     return R.layout.fragment_timepicker;
@@ -42,6 +43,9 @@ public class TimePickerFragment extends BaseFragment
     mCbDay = view.findViewById(R.id.cb_day);
     mCbHour = view.findViewById(R.id.cb_hour);
     mCbMinute = view.findViewById(R.id.cb_minute);
+    Calendar love = Calendar.getInstance();
+    love.set(love.get(Calendar.YEAR), 4, 20, 13, 14);
+    mLoveTimes = love.getTimeInMillis();
   }
 
   @Override public void onTimeSelect(TimePicker picker, Date date) {
@@ -65,7 +69,7 @@ public class TimePickerFragment extends BaseFragment
       // 设置pickerview样式
       .setInterceptor(new BasePicker.Interceptor() {
         @Override public void intercept(PickerView pickerView) {
-          pickerView.setVisibleItemCount(5);
+          pickerView.setVisibleItemCount(3);
           // 将年月设置为循环的
           int type = (int) pickerView.getTag();
           if (type == TimePicker.TYPE_YEAR || type == TimePicker.TYPE_MONTH) {
@@ -83,6 +87,8 @@ public class TimePickerFragment extends BaseFragment
             if (offset == 0) return "今年";
             if (offset == 1) return "明年";
             return num + "年";
+          } else if (type == TimePicker.TYPE_MONTH) {
+            return String.format("%d月", num);
           }
 
           return super.format(picker, type, position, num);
@@ -109,8 +115,7 @@ public class TimePickerFragment extends BaseFragment
         } catch (ParseException e) {
           // 如果没有设置选中时间，则取起始时间
           e.printStackTrace();
-          // 2019/2/5 14:57:23
-          //mTimePicker.setSelectedDate(1549349843000L);
+          mTimePicker.setSelectedDate(mLoveTimes);
         }
         mTimePicker.show();
         break;

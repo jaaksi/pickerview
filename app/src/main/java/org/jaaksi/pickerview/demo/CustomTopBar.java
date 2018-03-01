@@ -63,7 +63,7 @@ public class CustomTopBar implements ITopBar {
     return mBtnConfirm;
   }
 
-  @Override public TextView getTitleView() {
+  public TextView getTitleView() {
     return mTvTitle;
   }
 }

@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.support.annotation.ColorInt;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
@@ -32,15 +33,15 @@ public class PickerView<T> extends BasePickerView<T> {
 
   private TextPaint mPaint; //
   // 可以通过修改静态变量，从而实现全局默认值
-  public static int sMIN_TEXTSIZE = 18; // dp
-  public static int sMAX_TEXTSIZE = 22; // dp
+  public static int sMinTextSize = 18; // dp
+  public static int sMaxTextSize = 22; // dp
   private int mMinTextSize; // 最小的字体
   private int mMaxTextSize; // 最大的字体
-  public static int sCENTER_COLOR = Color.BLUE;
-  public static int sOUT_COLOR = Color.GRAY;
+  public static int sCenterColor = Color.BLUE;
+  public static int sOutColor = Color.GRAY;
   // 字体渐变颜色
-  private int mCenterColor = sCENTER_COLOR; // 中间选中item的颜色
-  private int mOutColor = sOUT_COLOR; // 上下两边的颜色
+  private int mCenterColor = sCenterColor; // 中间选中item的颜色
+  private int mOutColor = sOutColor; // 上下两边的颜色
   private Layout.Alignment mAlignment = Layout.Alignment.ALIGN_CENTER; // 对齐方式,默认居中
 
   public PickerView(Context context) {
@@ -78,25 +79,27 @@ public class PickerView<T> extends BasePickerView<T> {
       typedArray.recycle();
     }
     if (mMinTextSize <= 0) {
-      mMinTextSize = Util.dip2px(getContext(), sMIN_TEXTSIZE);
+      mMinTextSize = Util.dip2px(getContext(), sMinTextSize);
     }
     if (mMaxTextSize <= 0) {
-      mMaxTextSize = Util.dip2px(getContext(), sMAX_TEXTSIZE);
+      mMaxTextSize = Util.dip2px(getContext(), sMaxTextSize);
     }
   }
 
   /**
+   * 设置center out 文字 color
+   *
    * @param centerColor 正中间的颜色
    * @param outColor 上下两边的颜色
    */
-  public void setColor(int centerColor, int outColor) {
+  public void setColor(@ColorInt int centerColor, @ColorInt int outColor) {
     mCenterColor = centerColor;
     mOutColor = outColor;
     invalidate();
   }
 
   /**
-   * item文字大小，单位dp
+   * 设置item文字大小，单位dp
    *
    * @param minText 沒有被选中时的最小文字
    * @param maxText 被选中时的最大文字
@@ -152,7 +155,7 @@ public class PickerView<T> extends BasePickerView<T> {
     } else {
       text = data.toString();
     }
-    text = getFormatter() == null ? text : getFormatter().handle(this, position, text);
+    text = getFormatter() == null ? text : getFormatter().format(this, position, text);
     if (text == null) return;
     int itemSize = getItemSize();
 

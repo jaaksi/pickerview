@@ -26,8 +26,8 @@ import org.jaaksi.pickerview.widget.PickerView;
 public class MixedTimePicker extends BasePicker
   implements BasePickerView.OnSelectedListener, BasePickerView.Formatter {
 
-  public static final DateFormat sSimpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日");
-  public static final DateFormat sSimpleTimeFormat = new SimpleDateFormat("HH:mm");
+  public static final DateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("yyyy年MM月dd日");
+  public static final DateFormat DEFAULT_TIME_FORMAT = new SimpleDateFormat("HH:mm");
 
   public static final int TYPE_DATE = 0x01;
   public static final int TYPE_TIME = 0x02;
@@ -92,6 +92,9 @@ public class MixedTimePicker extends BasePicker
     mSelectedDate.setTimeInMillis(millis);
   }
 
+  /**
+   * @return type
+   */
   public int getType() {
     return mType;
   }
@@ -301,16 +304,16 @@ public class MixedTimePicker extends BasePicker
   }
 
   @Override
-  public CharSequence handle(BasePickerView pickerView, int position, CharSequence charSequence) {
+  public CharSequence format(BasePickerView pickerView, int position, CharSequence charSequence) {
     if (mFormatter == null) return charSequence;
 
     int tag = (int) pickerView.getTag();
     if (tag == TYPE_DATE) {
       // 根据起始及偏移量，计算出当前position对应的day
-      return mFormatter.handle(MixedTimePicker.this, TYPE_DATE, getPositionDate(position),
+      return mFormatter.format(MixedTimePicker.this, TYPE_DATE, getPositionDate(position),
         position);
     } else if (tag == TYPE_TIME) {
-      return mFormatter.handle(MixedTimePicker.this, TYPE_TIME, getPositionTime(position),
+      return mFormatter.format(MixedTimePicker.this, TYPE_TIME, getPositionTime(position),
         position);
     }
     return charSequence;
@@ -390,16 +393,31 @@ public class MixedTimePicker extends BasePicker
       return this;
     }
 
+    /**
+     * 设置Formatter
+     *
+     * @param formatter formatter
+     */
     public Builder setFormatter(Formatter formatter) {
       mFormatter = formatter;
       return this;
     }
 
+    /**
+     * 设置拦截器
+     *
+     * @param interceptor 拦截器
+     */
     public Builder setInterceptor(Interceptor interceptor) {
       mInterceptor = interceptor;
       return this;
     }
 
+    /**
+     * 通过Builder构建 MixedTimePicker
+     *
+     * @return MixedTimePicker
+     */
     public MixedTimePicker create() {
       // 如果包含日期，却没有设置起止时间就认为错误
       if ((mType & TYPE_DATE) == TYPE_DATE && (mStartDate < 0 || mEndDate < 0)) {
@@ -432,27 +450,34 @@ public class MixedTimePicker extends BasePicker
   public static class DefaultFormatter implements Formatter {
 
     @Override
-    public CharSequence handle(MixedTimePicker picker, int type, Date date, int position) {
+    public CharSequence format(MixedTimePicker picker, int type, Date date, int position) {
       if (type == TYPE_DATE) {
-        return sSimpleDateFormat.format(date);
+        return DEFAULT_DATE_FORMAT.format(date);
       } else {
-        return sSimpleTimeFormat.format(date);
+        return DEFAULT_TIME_FORMAT.format(date);
       }
     }
   }
 
   public interface Formatter {
     /**
-     * 让用户可以根据时间处理显示的文案，比如要月日一起显示，那么
+     * 用户可以自定义日期格式和时间格式
      *
      * @param picker picker
+     * @param type 并不是模式，而是当前item所属的type，如日期，时间
      * @param date 当前状态对应的日期或者时间
      * @param position 当前type所在的position
      */
-    CharSequence handle(MixedTimePicker picker, int type, Date date, int position);
+    CharSequence format(MixedTimePicker picker, int type, Date date, int position);
   }
 
   public interface OnTimeSelectListener {
+    /**
+     * 选中回调
+     *
+     * @param picker MixedTimePicker
+     * @param date date
+     */
     void onTimeSelect(MixedTimePicker picker, Date date);
   }
 }

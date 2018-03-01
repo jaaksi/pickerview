@@ -3,12 +3,6 @@ package org.jaaksi.pickerview.util;
 import android.content.Context;
 import android.graphics.Color;
 
-/**
- * 颜色工具栏
- *
- * @author hzw
- * @date 2016/1/24.
- */
 public class Util {
 
   /**
