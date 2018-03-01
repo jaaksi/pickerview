@@ -38,13 +38,17 @@ public class PickerConfigFragment extends BaseFragment
 
     // 设置CenterDecoration
     final DefaultCenterDecoration decoration = new DefaultCenterDecoration(mActivity);
-    decoration.setLineColor(Color.RED);
-    //.setDrawable(Color.parseColor("#999999"));
+    decoration.setLineColor(Color.RED)
+      //.setDrawable(Color.parseColor("#999999"))
+      .setLineWidth(1)
+      .setMargin(Util.dip2px(mActivity, 10), Util.dip2px(mActivity, -3), Util.dip2px(mActivity, 10),
+        Util.dip2px(mActivity, -3));
 
     mPicker =
       new OptionPicker.Builder(mActivity, 3, this).setInterceptor(new BasePicker.Interceptor() {
         @Override public void intercept(PickerView pickerView) {
           int level = (int) pickerView.getTag();
+          pickerView.setVisibleItemCount(5);
           // setInterceptor 可以根据level区分设置pickerview属性
           pickerView.setCenterDecoration(decoration);
           pickerView.setTextSize(15, 20);
@@ -52,7 +56,7 @@ public class PickerConfigFragment extends BaseFragment
       }).create();
     // 设置padding
     int padding = Util.dip2px(mActivity, 20);
-    mPicker.setPadding(padding, padding, padding, padding);
+    mPicker.setPadding(0, padding, 0, padding);
     mPicker.setPickerBackgroundColor(Color.parseColor("#eeeeee"));
 
     // 设置弹窗

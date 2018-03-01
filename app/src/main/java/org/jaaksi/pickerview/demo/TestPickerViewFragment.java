@@ -1,6 +1,7 @@
 package org.jaaksi.pickerview.demo;
 
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.view.View;
 import org.jaaksi.pickerview.adapter.NumericWheelAdapter;
 import org.jaaksi.pickerview.util.Util;
@@ -37,6 +38,7 @@ public class TestPickerViewFragment extends BaseFragment implements BasePickerVi
     DefaultCenterDecoration centerDecoration = new DefaultCenterDecoration(getActivity());
     centerDecoration.setLineColor(Color.GREEN);
     int margin = Util.dip2px(mActivity, 2);
+    centerDecoration.setMargin(new Rect(0, -margin, 0, -margin));
     centerDecoration.setLineWidth(1);
     //centerDecoration.setDrawable(Color.RED);
     mPickerView.setCenterDecoration(centerDecoration);

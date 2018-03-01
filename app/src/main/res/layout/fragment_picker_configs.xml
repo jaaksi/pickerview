@@ -10,7 +10,7 @@
     android:text="
     定制TopBar\n
     定制CenterDecoration:\n
-    设置装饰线颜色等\n
+    设置装饰线 margin 颜色等\n
     设置picker弹窗\n
     设置picker背景\n
     通过Interceptor设置pickerview样式\n"
