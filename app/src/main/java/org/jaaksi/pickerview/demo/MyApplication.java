@@ -41,6 +41,7 @@ public class MyApplication extends Application {
     int padding = Util.dip2px(this, 20);
     BasePicker.sDefaultPaddingRect = new Rect(padding, padding, padding, padding);
     BasePicker.sDefaultPickerBackgroundColor = Color.WHITE;
+    BasePicker.sDefaultCanceledOnTouchOutside = false;
     // 自定义 TopBar
     BasePicker.sDefaultTopBarCreator = new BasePicker.IDefaultTopBarCreator() {
       @Override public ITopBar createDefaultTopBar(LinearLayout parent) {

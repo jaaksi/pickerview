@@ -7,8 +7,6 @@ public class NumericWheelAdapter implements WheelAdapter<Integer> {
 
   private int minValue;
   private int maxValue;
-  // 间隔
-  private int offset;
 
   /**
    * Constructor

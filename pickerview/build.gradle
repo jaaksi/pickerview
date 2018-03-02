@@ -1,16 +1,16 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
+apply from: 'publish.gradle'
 
 android {
   compileSdkVersion 26
-
-
+  buildToolsVersion '26.0.3'
 
   defaultConfig {
     minSdkVersion 15
     targetSdkVersion 26
-    versionCode 1
-    versionName "1.0"
-
+    //    versionCode 1
+    //    versionName "1.0"
   }
 
   buildTypes {
@@ -19,10 +19,16 @@ android {
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
   }
+
+  lintOptions {
+    checkReleaseBuilds false
+    // Or, if you prefer, you can continue to check for errors in release builds,
+    // but continue the build even when errors are found:
+    abortOnError false
+  }
 }
 
 dependencies {
-  implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-  implementation 'com.android.support:appcompat-v7:26.1.0'
+  provided "com.android.support:support-v4:26.1.0"
 }

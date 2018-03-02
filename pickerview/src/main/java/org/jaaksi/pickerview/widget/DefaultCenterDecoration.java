@@ -80,6 +80,7 @@ public class DefaultCenterDecoration implements BasePickerView.CenterDecoration 
 
   /**
    * 设置装饰线的margin 单位px
+   * 水平方向认为。left=topmargin,top为rightmargin,right=botommargin,botom=leftmargin
    */
   public DefaultCenterDecoration setMargin(int left, int top, int right, int bottom) {
     mMarginRect = new Rect(left, top, right, bottom);
@@ -88,6 +89,7 @@ public class DefaultCenterDecoration implements BasePickerView.CenterDecoration 
 
   /**
    * 设置装饰线的margin
+   * 水平方向认为。left=topmargin,top为rightmargin,right=botommargin,botom=leftmargin
    */
   public DefaultCenterDecoration setMargin(Rect marginRect) {
     mMarginRect = marginRect;
@@ -97,28 +99,35 @@ public class DefaultCenterDecoration implements BasePickerView.CenterDecoration 
   @Override
   public void drawIndicator(BasePickerView pickerView, Canvas canvas, int left, int top, int right,
     int bottom) {
+    if (mMarginRect == null) {
+      mMarginRect = new Rect();
+    }
+    boolean isVertical = pickerView.isVertical();
     if (mDrawable != null) {
-      mRect.set(left, top, right, bottom);
+      if (isVertical) {
+        mRect.set(left + mMarginRect.left, top + mMarginRect.top, right - mMarginRect.right,
+          bottom - mMarginRect.bottom);
+      } else {
+        mRect.set(left + mMarginRect.top, top + mMarginRect.right, right - mMarginRect.bottom,
+          bottom - mMarginRect.left);
+      }
       mDrawable.setBounds(mRect);
       mDrawable.draw(canvas);
     }
 
     if (mPaint.getColor() == Color.TRANSPARENT) return;
 
-    if (mMarginRect == null) {
-      mMarginRect = new Rect();
-    }
-    if (pickerView.isVertical()) {
+    if (isVertical) {
       canvas.drawLine(left + mMarginRect.left, top + mMarginRect.top, right - mMarginRect.right,
         top + mMarginRect.top, mPaint);
       canvas.drawLine(left + mMarginRect.left, bottom - mMarginRect.bottom,
         right - mMarginRect.right, bottom - mMarginRect.bottom, mPaint);
     } else {
-      // 水平方向认为left为topmargin,top为leftmargin
-      canvas.drawLine(left + mMarginRect.top, top + mMarginRect.left, left + mMarginRect.top,
-        bottom - mMarginRect.right, mPaint);
-      canvas.drawLine(right - mMarginRect.bottom, top + mMarginRect.left,
-        right - mMarginRect.bottom, bottom - mMarginRect.right, mPaint);
+      // 水平方向认为。left=topmargin,top为rightmargin,right=botommargin,botom=leftmargin
+      canvas.drawLine(left + mMarginRect.top, top + mMarginRect.right, left + mMarginRect.top,
+        bottom - mMarginRect.left, mPaint);
+      canvas.drawLine(right - mMarginRect.bottom, top + mMarginRect.right,
+        right - mMarginRect.bottom, bottom - mMarginRect.left, mPaint);
     }
   }
 }

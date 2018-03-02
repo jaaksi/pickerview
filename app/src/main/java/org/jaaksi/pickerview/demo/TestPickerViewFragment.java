@@ -24,7 +24,7 @@ public class TestPickerViewFragment extends BaseFragment {
     mPickerView = view.findViewById(R.id.pickerview);
     mPickerView.setAdapter(new NumericWheelAdapter(1, 10));
     // 覆盖xml中的水平方向
-    mPickerView.setHorizontal(false);
+    mPickerView.setHorizontal(true);
     mPickerView.setTextSize(15, 22);
     mPickerView.setIsCirculation(true);
     //mPickerView.setAlignment(Layout.Alignment.ALIGN_CENTER);
@@ -40,10 +40,10 @@ public class TestPickerViewFragment extends BaseFragment {
         return charSequence + "万年";
       }
     });
-    int margin = Util.dip2px(mActivity, 2);
+    int margin = Util.dip2px(mActivity, 5);
     DefaultCenterDecoration centerDecoration =
       new DefaultCenterDecoration(getActivity()).setLineColor(Color.GREEN)
-        .setMargin(0, -margin, 0, -margin)
+        .setMargin(margin, -margin, margin, -margin)
         .setLineWidth(1)
         .setDrawable(Color.RED);
     mPickerView.setCenterDecoration(centerDecoration);

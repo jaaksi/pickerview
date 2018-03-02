@@ -35,6 +35,8 @@ public abstract class BasePicker implements View.OnClickListener {
   public static Rect sDefaultPaddingRect;
   /** default picker background color */
   public static int sDefaultPickerBackgroundColor = Color.WHITE;
+  /** Canceled dialog OnTouch Outside */
+  public static boolean sDefaultCanceledOnTouchOutside = true;
 
   protected Context mContext;
   protected LayoutInflater mInflater;
@@ -174,7 +176,7 @@ public abstract class BasePicker implements View.OnClickListener {
       window.setGravity(Gravity.BOTTOM);
     }
 
-    mPickerDialog.setCanceledOnTouchOutside(false);
+    mPickerDialog.setCanceledOnTouchOutside(sDefaultCanceledOnTouchOutside);
     mPickerDialog.setContentView(mRootLayout);
   }
 

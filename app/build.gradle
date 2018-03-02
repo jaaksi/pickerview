@@ -2,6 +2,8 @@ apply plugin: 'com.android.application'
 
 android {
   compileSdkVersion 26
+  buildToolsVersion '26.0.3'
+
   defaultConfig {
     applicationId "org.jaaksi.pickerview.demo"
     minSdkVersion 15
@@ -19,9 +21,9 @@ android {
 }
 
 dependencies {
-  implementation fileTree(include: ['*.jar'], dir: 'libs')
-  implementation 'com.android.support:appcompat-v7:26.1.0'
-  implementation project(':pickerview')
-  implementation 'com.android.support:support-v4:26.1.0'
-  compile 'com.google.code.gson:gson:2.8.0'
+  compile fileTree(include: ['*.jar'], dir: 'libs')
+  compile 'com.android.support:appcompat-v7:26.1.0'
+  compile project(':pickerview')
+  compile 'com.android.support:support-v4:26.1.0'
+//  compile 'org.jaaksi:pickerview:1.0.0@aar'
 }

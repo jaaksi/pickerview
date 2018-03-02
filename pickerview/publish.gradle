@@ -1,0 +1,75 @@
+// gradlew clean build bintrayUpload -PbintrayUser=username -PbintrayKey=apikey -PdryRun=false
+//  compile  'org.jaaksi:pickerview:1.0.0@aar'
+
+def getLocalProperties(String key, Object defValue) {
+  try {
+    Properties properties = new Properties()
+    properties.load(new File(rootDir.absolutePath + "/local.properties").newDataInputStream())
+    def value = properties.getProperty(key, defValue)
+    return value
+  } catch (Exception e) {
+    return defValue
+  }
+}
+
+def bintrayUser = getLocalProperties("bintrayUser", "")
+def bintrayKey = getLocalProperties("bintrayKey", "")
+
+def LibVersion = '1.0.0'
+
+publish {
+  userOrg = bintrayUser //bintray注册的用户名所属组织名
+  groupId = 'org.jaaksi' //compile引用时的第1部分groupId
+  artifactId = 'pickerview' //compile引用时的第2部分项目名
+  publishVersion = LibVersion //compile引用时的第3部分版本号
+  desc = 'This is a pickerView library.' //d项目描述
+  repoName = "maven" //你的仓库名称，没有填写默认仓库是maven
+  //  website = 'https://github.com/jaaksi/maven.git' // 网站，最好有，不重要
+}
+
+afterEvaluate { project ->
+  task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.sourceFiles
+  }
+
+  /*task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+  }
+
+  task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+  }
+
+  javadoc {
+    options {
+      encoding 'UTF-8'
+      charSet 'UTF-8'
+      author true
+    }
+  }*/
+
+  artifacts {
+    //    archives javadocJar
+    archives sourcesJar
+  }
+}
+
+// 上传到jecenter时需要pom文件，但是直接执行不会执行generatePomFile task，所以这里执行clean之后主动执行以下generatePomFile
+
+task push {
+  doLast {
+    exec {
+      try {
+        executable 'bash'
+        args "-c",
+            "gradle clean generatePomFileForReleasePublication build bintrayUpload -PbintrayUser=$bintrayUser -PbintrayKey=$bintrayKey -PdryRun=false"
+        println commandType
+      } catch (Exception e) {
+        println e.message
+      }
+    }
+  }
+}
