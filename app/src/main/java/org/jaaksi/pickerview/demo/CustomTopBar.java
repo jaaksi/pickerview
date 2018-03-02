@@ -31,6 +31,11 @@ public class CustomTopBar implements ITopBar {
     mTvTitle = mTopBar.findViewById(R.id.tv_title);
   }
 
+  /**
+   * 设置bottom divider line color
+   *
+   * @param color linecolor
+   */
   public CustomTopBar setDividerColor(@ColorInt int color) {
     mDivider.setBackgroundColor(color);
     return this;
@@ -63,7 +68,7 @@ public class CustomTopBar implements ITopBar {
     return mBtnConfirm;
   }
 
-  public TextView getTitleView() {
+  @Override public TextView getTitleView() {
     return mTvTitle;
   }
 }

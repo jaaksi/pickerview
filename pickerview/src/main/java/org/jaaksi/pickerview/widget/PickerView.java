@@ -32,12 +32,15 @@ public class PickerView<T> extends BasePickerView<T> {
   private int mMeasureHeight;
 
   private TextPaint mPaint; //
-  // 可以通过修改静态变量，从而实现全局默认值
-  public static int sMinTextSize = 18; // dp
-  public static int sMaxTextSize = 22; // dp
-  private int mMinTextSize; // 最小的字体
-  private int mMaxTextSize; // 最大的字体
+  /** default out text size 18dp */
+  public static int sOutTextSize = 18; // dp
+  /** default center text size 22dp */
+  public static int sCenterTextSize = 22; // dp
+  private int mOutTextSize; // 最小的字体
+  private int mCenterTextSize; // 最大的字体
+  /** default center text color */
   public static int sCenterColor = Color.BLUE;
+  /** default out text color */
   public static int sOutColor = Color.GRAY;
   // 字体渐变颜色
   private int mCenterColor = sCenterColor; // 中间选中item的颜色
@@ -64,8 +67,9 @@ public class PickerView<T> extends BasePickerView<T> {
   private void init(AttributeSet attrs) {
     if (attrs != null) {
       TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.PickerView);
-      mMinTextSize = typedArray.getDimensionPixelSize(R.styleable.PickerView_pv_min_text_size, 0);
-      mMaxTextSize = typedArray.getDimensionPixelSize(R.styleable.PickerView_pv_max_text_size, 0);
+      mOutTextSize = typedArray.getDimensionPixelSize(R.styleable.PickerView_pv_out_text_size, 0);
+      mCenterTextSize =
+        typedArray.getDimensionPixelSize(R.styleable.PickerView_pv_center_text_size, 0);
       mCenterColor = typedArray.getColor(R.styleable.PickerView_pv_start_color, mCenterColor);
       mOutColor = typedArray.getColor(R.styleable.PickerView_pv_end_color, mOutColor);
       int align = typedArray.getInt(R.styleable.PickerView_pv_alignment, 1);
@@ -78,11 +82,11 @@ public class PickerView<T> extends BasePickerView<T> {
       }
       typedArray.recycle();
     }
-    if (mMinTextSize <= 0) {
-      mMinTextSize = Util.dip2px(getContext(), sMinTextSize);
+    if (mOutTextSize <= 0) {
+      mOutTextSize = Util.dip2px(getContext(), sOutTextSize);
     }
-    if (mMaxTextSize <= 0) {
-      mMaxTextSize = Util.dip2px(getContext(), sMaxTextSize);
+    if (mCenterTextSize <= 0) {
+      mCenterTextSize = Util.dip2px(getContext(), sCenterTextSize);
     }
   }
 
@@ -105,8 +109,8 @@ public class PickerView<T> extends BasePickerView<T> {
    * @param maxText 被选中时的最大文字
    */
   public void setTextSize(int minText, int maxText) {
-    mMinTextSize = Util.dip2px(getContext(), minText);
-    mMaxTextSize = Util.dip2px(getContext(), maxText);
+    mOutTextSize = Util.dip2px(getContext(), minText);
+    mCenterTextSize = Util.dip2px(getContext(), maxText);
     invalidate();
   }
 
@@ -118,12 +122,12 @@ public class PickerView<T> extends BasePickerView<T> {
     return mOutColor;
   }
 
-  public int getMinTextSize() {
-    return mMinTextSize;
+  public int getOutTextSize() {
+    return mOutTextSize;
   }
 
-  public int getMaxTextSize() {
-    return mMaxTextSize;
+  public int getCenterTextSize() {
+    return mCenterTextSize;
   }
 
   /**
@@ -162,21 +166,22 @@ public class PickerView<T> extends BasePickerView<T> {
     // 设置文字大小
     if (relative == -1) { // 上一个
       if (moveLength < 0) { // 向上滑动
-        mPaint.setTextSize(mMinTextSize);
+        mPaint.setTextSize(mOutTextSize);
       } else { // 向下滑动
-        mPaint.setTextSize(mMinTextSize + (mMaxTextSize - mMinTextSize) * moveLength / itemSize);
+        mPaint.setTextSize(mOutTextSize + (mCenterTextSize - mOutTextSize) * moveLength / itemSize);
       }
     } else if (relative == 0) { // 中间item,当前选中
-      mPaint.setTextSize(mMinTextSize
-        + (mMaxTextSize - mMinTextSize) * (itemSize - Math.abs(moveLength)) / itemSize);
+      mPaint.setTextSize(mOutTextSize
+        + (mCenterTextSize - mOutTextSize) * (itemSize - Math.abs(moveLength)) / itemSize);
     } else if (relative == 1) { // 下一个
       if (moveLength > 0) { // 向下滑动
-        mPaint.setTextSize(mMinTextSize);
+        mPaint.setTextSize(mOutTextSize);
       } else { // 向上滑动
-        mPaint.setTextSize(mMinTextSize + (mMaxTextSize - mMinTextSize) * -moveLength / itemSize);
+        mPaint.setTextSize(
+          mOutTextSize + (mCenterTextSize - mOutTextSize) * -moveLength / itemSize);
       }
     } else { // 其他
-      mPaint.setTextSize(mMinTextSize);
+      mPaint.setTextSize(mOutTextSize);
     }
 
     // 不换行

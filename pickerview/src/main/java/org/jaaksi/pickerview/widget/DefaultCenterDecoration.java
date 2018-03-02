@@ -18,9 +18,13 @@ import org.jaaksi.pickerview.util.Util;
  */
 
 public class DefaultCenterDecoration implements BasePickerView.CenterDecoration {
+  /** default line color */
   public static int sDefaultLineColor = Color.BLUE;
+  /** default line width */
   public static float sDefaultLineWidth = 1;
+  /** default item background drawable */
   public static Drawable sDefaultDrawable;
+  /** default line margin */
   public static Rect sDefaultMarginRect;
 
   private Context mContext;

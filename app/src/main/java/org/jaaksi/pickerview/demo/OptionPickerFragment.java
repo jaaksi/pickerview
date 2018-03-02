@@ -10,7 +10,6 @@ import org.jaaksi.pickerview.demo.model.City;
 import org.jaaksi.pickerview.demo.model.County;
 import org.jaaksi.pickerview.demo.model.Province;
 import org.jaaksi.pickerview.picker.OptionPicker;
-import org.jaaksi.pickerview.topbar.DefaultTopBar;
 
 /**
  * 演示topbar,CenterDecoration,padding，interceptor,
@@ -45,9 +44,9 @@ public class OptionPickerFragment extends BaseFragment
         return charSequence;
       }
     });*/
-    // 设置标题，这里调用getTopBarHandler获取defaultTopBar
-    DefaultTopBar topBar = (DefaultTopBar) mPicker.getTopBar();
-    topBar.getTitleView().setText("请选择城市");
+    // 设置标题，这里调用getTopBar来设置标题
+    //DefaultTopBar topBar = (DefaultTopBar) mPicker.getTopBar();
+    mPicker.getTopBar().getTitleView().setText("请选择城市");
     List<Province> data = createData();
     mPicker.setDataWithValues(data);
     //mPicker.setDataWithValues(data, provinceId, cityId, countyId);

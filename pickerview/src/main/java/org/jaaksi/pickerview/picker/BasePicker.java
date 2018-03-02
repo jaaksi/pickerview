@@ -31,8 +31,9 @@ import org.jaaksi.pickerview.widget.PickerView;
  */
 
 public abstract class BasePicker implements View.OnClickListener {
-  // pickerview父容器的padding
-  public static Rect sPaddingRect;
+  /** pickerView父容器的 default padding */
+  public static Rect sDefaultPaddingRect;
+  /** default picker background color */
   public static int sDefaultPickerBackgroundColor = Color.WHITE;
 
   protected Context mContext;
@@ -40,8 +41,8 @@ public abstract class BasePicker implements View.OnClickListener {
 
   private Dialog mPickerDialog;
   private LinearLayout mRootLayout;
-  // 自定义default topbar
-  public static ITopBar sDefaultTopBar = null;
+  /** 用于构建defaultTopBar的接口 */
+  public static IDefaultTopBarCreator sDefaultTopBarCreator;
   // topbar的设置，title，确定按钮等都通过这个控制，picker自身不处理
   private ITopBar mITopBar;
   protected OnPickerChooseListener mPickerChooseListener;
@@ -143,20 +144,20 @@ public abstract class BasePicker implements View.OnClickListener {
     mRootLayout.setOrientation(LinearLayout.VERTICAL);
     mRootLayout.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
 
-    //if (mITopBar == null) {
-    if (sDefaultTopBar != null) {
-      mITopBar = sDefaultTopBar;
+    if (sDefaultTopBarCreator != null) {
+      // 这里采用静态接口，避免静态持有view造成泄漏以及可以传递parent
+      mITopBar = sDefaultTopBarCreator.createDefaultTopBar(mRootLayout);
     } else {
       mITopBar = new DefaultTopBar(mRootLayout);
     }
-    //}
     addTopBar();
 
     mPickerContainer = new LinearLayout(mContext);
     mPickerContainer.setOrientation(LinearLayout.HORIZONTAL);
     mPickerContainer.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
-    if (sPaddingRect != null) {
-      setPadding(sPaddingRect.left, sPaddingRect.top, sPaddingRect.right, sPaddingRect.bottom);
+    if (sDefaultPaddingRect != null) {
+      setPadding(sDefaultPaddingRect.left, sDefaultPaddingRect.top, sDefaultPaddingRect.right,
+        sDefaultPaddingRect.bottom);
     }
     if (sDefaultPickerBackgroundColor != Color.TRANSPARENT) {
       setPickerBackgroundColor(sDefaultPickerBackgroundColor);
@@ -321,8 +322,18 @@ public abstract class BasePicker implements View.OnClickListener {
    */
   protected abstract void onConfirm();
 
-  protected void onCancel() {
+  public void onCancel() {
     mPickerDialog.dismiss();
+  }
+
+  public interface IDefaultTopBarCreator {
+    /**
+     * 创建defaulttopbar
+     *
+     * @param parent parent
+     * @return defaultTopBar
+     */
+    ITopBar createDefaultTopBar(LinearLayout parent);
   }
 
   /**

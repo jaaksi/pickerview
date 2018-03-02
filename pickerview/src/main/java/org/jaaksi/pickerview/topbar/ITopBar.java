@@ -1,10 +1,11 @@
 package org.jaaksi.pickerview.topbar;
 
 import android.view.View;
+import android.widget.TextView;
 
 /**
  * Created by fuchaoyang on 2018/2/16.<br/>
- * description：TopBar抽象接口，不提供Title方法，但建议自定义的时候实现getTitleView方法
+ * description：TopBar抽象接口
  */
 
 public interface ITopBar {
@@ -23,5 +24,8 @@ public interface ITopBar {
    */
   View getBtnConfirm();
 
-  //TextView getTitleView();
+  /**
+   * @return title view
+   */
+  TextView getTitleView();
 }

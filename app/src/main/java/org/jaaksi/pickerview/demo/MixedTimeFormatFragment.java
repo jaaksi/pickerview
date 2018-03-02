@@ -9,7 +9,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import org.jaaksi.pickerview.picker.MixedTimePicker;
-import org.jaaksi.pickerview.topbar.DefaultTopBar;
 import org.jaaksi.pickerview.util.DateUtil;
 
 /**
@@ -61,8 +60,7 @@ public class MixedTimeFormatFragment extends BaseFragment
     // 2018/2/5 03:14:11 - 2020/1/2 22:51:6
     Dialog pickerDialog = mTimePicker.getPickerDialog();
     pickerDialog.setCanceledOnTouchOutside(true);
-    DefaultTopBar topBar = (DefaultTopBar) mTimePicker.getTopBar();
-    topBar.getTitleView().setText("请选择时间");
+    mTimePicker.getTopBar().getTitleView().setText("请选择时间");
   }
 
   @Override public void onTimeSelect(MixedTimePicker picker, Date date) {

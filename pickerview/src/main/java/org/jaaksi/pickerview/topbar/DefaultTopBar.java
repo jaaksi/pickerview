@@ -69,11 +69,10 @@ public class DefaultTopBar implements ITopBar {
 
   /**
    * 获取TopBar的title view
-   * ITOpBar中并不提供title相关的方法，但自定义TopBar中应该实现这个方法。
    *
    * @return title
    */
-  public TextView getTitleView() {
+  @Override public TextView getTitleView() {
     return mTvTitle;
   }
 }

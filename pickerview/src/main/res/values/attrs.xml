@@ -21,9 +21,9 @@
 
   <declare-styleable name="PickerView">
     <!-- out min text size -->
-    <attr name="pv_min_text_size" format="dimension" />
+    <attr name="pv_out_text_size" format="dimension" />
     <!-- center max text size -->
-    <attr name="pv_max_text_size" format="dimension" />
+    <attr name="pv_center_text_size" format="dimension" />
     <!-- out text color -->
     <attr name="pv_start_color" format="color" />
     <!-- center text color -->

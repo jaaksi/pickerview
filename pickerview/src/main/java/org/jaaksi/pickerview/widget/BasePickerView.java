@@ -33,11 +33,12 @@ import org.jaaksi.pickerview.util.Util;
 public abstract class BasePickerView<T> extends View {
   private static final String TAG = "BasePickerView";
 
-  // 默认可见的item个数5个
+  /** 默认可见的item个数：5个 */
   public static int sDefaultVisibleItemCount = 5;
   private int mVisibleItemCount = sDefaultVisibleItemCount; // 可见的item数量
+  /** 默认itemSize：50dp */
   public static int sDefaultItemSize = 50; //dp
-  // 默认是否循环
+  /** 默认是否循环：false */
   public static boolean sDefaultIsCirculation = false;
 
   private boolean mIsInertiaScroll = true; // 快速滑动时是否惯性滚动一段距离，默认开启

@@ -2,7 +2,11 @@ package org.jaaksi.pickerview.demo;
 
 import android.app.Application;
 import android.graphics.Color;
+import android.graphics.Rect;
+import android.widget.LinearLayout;
 import org.jaaksi.pickerview.picker.BasePicker;
+import org.jaaksi.pickerview.topbar.ITopBar;
+import org.jaaksi.pickerview.util.Util;
 import org.jaaksi.pickerview.widget.DefaultCenterDecoration;
 import org.jaaksi.pickerview.widget.PickerView;
 
@@ -13,29 +17,44 @@ import org.jaaksi.pickerview.widget.PickerView;
  */
 
 public class MyApplication extends Application {
+
   @Override public void onCreate() {
     super.onCreate();
     // 建议在application中初始化picker 默认属性实现全局设置
-    initDefaultPicker();
+    //initDefaultPicker();
   }
 
   private void initDefaultPicker() {
+    // 利用修改静态默认属性值，快速定制一套满足自己app样式需求的Picker.
+    // BasePickerView
+    PickerView.sDefaultVisibleItemCount = 3;
+    PickerView.sDefaultItemSize = 50;
+    PickerView.sDefaultIsCirculation = true;
+
     // PickerView
-    //PickerView.sCenterColor = Color.BLUE;
-    //PickerView.sOutColor = Color.RED;
-    PickerView.sMinTextSize = 18;
-    PickerView.sMaxTextSize = 22;
-    //PickerView.sDefaultItemSize = 50;
+    PickerView.sOutTextSize = 18;
+    PickerView.sCenterTextSize = 18;
+    PickerView.sCenterColor = Color.RED;
+    PickerView.sOutColor = Color.GRAY;
 
     // BasePicker
+    int padding = Util.dip2px(this, 20);
+    BasePicker.sDefaultPaddingRect = new Rect(padding, padding, padding, padding);
     BasePicker.sDefaultPickerBackgroundColor = Color.WHITE;
-    // picker padding
-    //int padding = Util.dip2px(this, 20);
-    //BasePicker.sPaddingRect = new Rect(padding, padding, padding, padding);
+    // 自定义 TopBar
+    BasePicker.sDefaultTopBarCreator = new BasePicker.IDefaultTopBarCreator() {
+      @Override public ITopBar createDefaultTopBar(LinearLayout parent) {
+        return new CustomTopBar(parent);
+      }
+    };
 
     // DefaultCenterDecoration
     DefaultCenterDecoration.sDefaultLineWidth = 1;
-    //DefaultCenterDecoration.sDefaultLineColor = Color.RED;
-
+    DefaultCenterDecoration.sDefaultLineColor = Color.RED;
+    //DefaultCenterDecoration.sDefaultDrawable = new ColorDrawable(Color.WHITE);
+    int leftMargin = Util.dip2px(this, 10);
+    int topMargin = Util.dip2px(this, 2);
+    DefaultCenterDecoration.sDefaultMarginRect =
+      new Rect(leftMargin, -topMargin, leftMargin, -topMargin);
   }
 }
