@@ -105,10 +105,12 @@ public class DefaultCenterDecoration implements BasePickerView.CenterDecoration 
     boolean isVertical = pickerView.isVertical();
     if (mDrawable != null) {
       if (isVertical) {
-        mRect.set(left + mMarginRect.left, top + mMarginRect.top, right - mMarginRect.right,
-          bottom - mMarginRect.bottom);
+        mRect.set(left + mMarginRect.left,
+          top + mMarginRect.top + (int) (mPaint.getStrokeWidth() / 2), right - mMarginRect.right,
+          bottom - mMarginRect.bottom - (int) (mPaint.getStrokeWidth() / 2));
       } else {
-        mRect.set(left + mMarginRect.top, top + mMarginRect.right, right - mMarginRect.bottom,
+        mRect.set(left + mMarginRect.top + (int) (mPaint.getStrokeWidth() / 2),
+          top + mMarginRect.right, right - mMarginRect.bottom - (int) (mPaint.getStrokeWidth() / 2),
           bottom - mMarginRect.left);
       }
       mDrawable.setBounds(mRect);

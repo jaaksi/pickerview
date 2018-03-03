@@ -24,7 +24,7 @@ public class TestPickerViewFragment extends BaseFragment {
     mPickerView = view.findViewById(R.id.pickerview);
     mPickerView.setAdapter(new NumericWheelAdapter(1, 10));
     // 覆盖xml中的水平方向
-    mPickerView.setHorizontal(true);
+    mPickerView.setVertical(true);
     mPickerView.setTextSize(15, 22);
     mPickerView.setIsCirculation(true);
     //mPickerView.setAlignment(Layout.Alignment.ALIGN_CENTER);
