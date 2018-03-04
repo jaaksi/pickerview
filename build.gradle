@@ -24,15 +24,6 @@ allprojects {
   }
 }
 
-// 如果你开源库中有中文注释在moudel的build.gradle加入格式
-tasks.withType(Javadoc) {
-  options {
-    encoding "UTF-8"
-    charSet 'UTF-8'
-    links "http://docs.oracle.com/javase/7/docs/api"
-  }
-}
-
 task clean(type: Delete) {
   delete rootProject.buildDir
 }

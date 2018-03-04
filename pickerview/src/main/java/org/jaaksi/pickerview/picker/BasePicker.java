@@ -47,7 +47,7 @@ public abstract class BasePicker implements View.OnClickListener {
   public static IDefaultTopBarCreator sDefaultTopBarCreator;
   // topbar的设置，title，确定按钮等都通过这个控制，picker自身不处理
   private ITopBar mITopBar;
-  protected OnPickerChooseListener mPickerChooseListener;
+  protected OnPickerChooseListener mOnPickerChooseListener;
   // 构造方法中就会初始化
   protected LinearLayout mPickerContainer;
   private Interceptor mInterceptor;
@@ -65,10 +65,10 @@ public abstract class BasePicker implements View.OnClickListener {
   /**
    * 设置picker取消，确定按钮监听。可用于拦截选中操作。
    *
-   * @param pickerChooseListener listener
+   * @param onPickerChooseListener listener
    */
-  public BasePicker setPickerChooseListener(OnPickerChooseListener pickerChooseListener) {
-    mPickerChooseListener = pickerChooseListener;
+  public BasePicker setOnPickerChooseListener(OnPickerChooseListener onPickerChooseListener) {
+    mOnPickerChooseListener = onPickerChooseListener;
     return this;
   }
 
@@ -307,14 +307,14 @@ public abstract class BasePicker implements View.OnClickListener {
     int id = v.getId();
     if (id == R.id.btn_confirm) {
       // 给用户拦截
-      if (mPickerChooseListener == null || mPickerChooseListener.onConfirm()) {
+      if (mOnPickerChooseListener == null || mOnPickerChooseListener.onConfirm()) {
         onConfirm();
         mPickerDialog.dismiss();
       }
     } else if (id == R.id.btn_cancel) {
       onCancel();
-      if (mPickerChooseListener != null) {
-        mPickerChooseListener.onCancel();
+      if (mOnPickerChooseListener != null) {
+        mOnPickerChooseListener.onCancel();
       }
     }
   }

@@ -26,6 +26,18 @@ android {
     // but continue the build even when errors are found:
     abortOnError false
   }
+
+  // 如果你开源库中有中文注释在根目录的build.gradle中的all加入格式
+  tasks.withType(Javadoc) {
+    options {
+      encoding "UTF-8"
+      charSet 'UTF-8'
+      links "http://docs.oracle.com/javase/7/docs/api"
+    }
+
+    // 解决Javadoc 出错  Javadoc generation failed. Generated Javadoc options file (useful for troubleshooting):
+    options.addStringOption('Xdoclint:none', '-quiet')
+  }
 }
 
 dependencies {

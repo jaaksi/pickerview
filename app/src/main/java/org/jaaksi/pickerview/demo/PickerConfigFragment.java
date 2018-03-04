@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -69,6 +70,20 @@ public class PickerConfigFragment extends BaseFragment
     topBar.getTitleView().setText("请选择城市");
     topBar.setDividerHeight(1).setDividerColor(Color.parseColor("#999999"));
     mPicker.setTopBar(topBar);
+
+    // 拦截缺点按钮的事件
+    mPicker.setOnPickerChooseListener(new BasePicker.OnPickerChooseListener() {
+      @Override public boolean onConfirm() {
+        Toast.makeText(mActivity, "拦截确定按钮", 1).show();
+        //mPicker.onCancel();
+        // 返回false表示拦截
+        return false;
+      }
+
+      @Override public void onCancel() {
+        Toast.makeText(mActivity, "取消", 1).show();
+      }
+    });
 
     List<Province> data = createData();
     mPicker.setDataWithValues(data);

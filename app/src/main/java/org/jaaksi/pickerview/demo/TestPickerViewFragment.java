@@ -44,7 +44,7 @@ public class TestPickerViewFragment extends BaseFragment {
     DefaultCenterDecoration centerDecoration =
       new DefaultCenterDecoration(getActivity()).setLineColor(Color.GREEN)
         .setMargin(margin, -margin, margin, -margin)
-        .setLineWidth(1)
+        .setLineWidth(3)
         .setDrawable(Color.RED);
     mPickerView.setCenterDecoration(centerDecoration);
     //mPickerView.setSelectedPosition(1);

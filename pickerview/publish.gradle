@@ -1,6 +1,3 @@
-// gradlew clean build bintrayUpload -PbintrayUser=username -PbintrayKey=apikey -PdryRun=false
-//  compile  'org.jaaksi:pickerview:1.0.0@aar'
-
 def getLocalProperties(String key, Object defValue) {
   try {
     Properties properties = new Properties()
@@ -57,7 +54,7 @@ afterEvaluate { project ->
   }
 }
 
-// 上传到jecenter时需要pom文件，但是直接执行不会执行generatePomFile task，所以这里执行clean之后主动执行以下generatePomFile
+// 上传到jcenter时需要pom文件，但是直接执行不会执行generatePomFile task，所以这里执行clean之后主动执行以下generatePomFile
 
 task push {
   doLast {
