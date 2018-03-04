@@ -27,7 +27,6 @@ Picker基类：封装了TopBar，PickerView容器，create and add PickerView方
 | setPickerBackgroundColor | 设置picker背景
 | setPadding | 设置PickerView父容器padding 单位:px
 | setTag | 给Picker 设置tag，用于区分不同的picker等。用法同View setTag
-| setKeyedTag | 给Picker 设置tag，用于区分不同的picker等。用法同View setTag
 | getRootLayout | 获取PickerView的父容器，创建DefaultTopBar时必须指定
 | setOnPickerChooseListener | 设置picker取消，确定按钮监听。可用于拦截选中操作
 | setTopBar | 设置自定义TopBar
