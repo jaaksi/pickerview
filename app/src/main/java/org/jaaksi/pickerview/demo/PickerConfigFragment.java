@@ -58,7 +58,7 @@ public class PickerConfigFragment extends BaseFragment
     // 设置padding
     int padding = Util.dip2px(mActivity, 20);
     mPicker.setPadding(0, padding, 0, padding);
-    mPicker.setPickerBackgroundColor(Color.parseColor("#eeeeee"));
+    //mPicker.setPickerBackgroundColor(Color.parseColor("#eeeeee"));
 
     // 设置弹窗
     Dialog dialog = mPicker.getPickerDialog();
@@ -68,7 +68,7 @@ public class PickerConfigFragment extends BaseFragment
     // 自定义topbar
     CustomTopBar topBar = new CustomTopBar(mPicker.getRootLayout());
     topBar.getTitleView().setText("请选择城市");
-    topBar.setDividerHeight(1).setDividerColor(Color.parseColor("#999999"));
+    topBar.setDividerHeight(1).setDividerColor(Color.parseColor("#eeeeee"));
     mPicker.setTopBar(topBar);
 
     // 拦截缺点按钮的事件
