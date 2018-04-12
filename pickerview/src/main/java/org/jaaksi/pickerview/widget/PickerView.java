@@ -28,9 +28,6 @@ import org.jaaksi.pickerview.util.Util;
  */
 public class PickerView<T> extends BasePickerView<T> {
 
-  private int mMeasureWidth;
-  private int mMeasureHeight;
-
   private TextPaint mPaint; //
   /** default out text size 18dp */
   public static int sOutTextSize = 18; // dp
@@ -141,12 +138,6 @@ public class PickerView<T> extends BasePickerView<T> {
 
   public Layout.Alignment getAlignment() {
     return mAlignment;
-  }
-
-  @Override protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-    super.onSizeChanged(w, h, oldw, oldh);
-    mMeasureWidth = getMeasuredWidth();
-    mMeasureHeight = getMeasuredHeight();
   }
 
   @Override

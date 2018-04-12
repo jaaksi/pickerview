@@ -444,9 +444,13 @@ public class MyApplication extends Application {
   > v1.0.0(2018-03-03)
   - release v1.0.0
 
+  > v1.0.1(2018-04-13)
+  - 修复MixedTimePicker选中时日期未更改
+  - 修复部分手机Picker弹窗无法居底部
+
 ## Gradle
 ```java
-    compile 'org.jaaksi:pickerview:1.0.0'
+    compile 'org.jaaksi:pickerview:1.0.1'
 ```
 
 ## Thanks

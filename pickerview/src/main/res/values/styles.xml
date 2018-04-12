@@ -2,9 +2,6 @@
 <resources>
 
   <style name="dialog_pickerview" parent="@android:style/Theme.Dialog">
-    <!-- dialog直接设置enter和exit动画无效，使用windowAnimationStyle才有效，不知道为啥
-    backgroundDimAmount 不透明度 0-1值越大越大
-     -->
     <item name="android:windowFrame">@null</item>
     <item name="android:windowIsFloating">true</item>
     <item name="android:windowIsTranslucent">true</item>

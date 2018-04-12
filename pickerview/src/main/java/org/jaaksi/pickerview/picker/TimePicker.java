@@ -132,7 +132,7 @@ public class TimePicker extends BasePicker
   /**
    * createPickerView在init中执行，那么{@link #setInterceptor(Interceptor)}就必须在构造该方法之前执行才有效。采用Builder
    */
-  private void initPicker() {
+  @SuppressWarnings("unchecked") private void initPicker() {
     if (hasType(TYPE_YEAR)) {
       mYearPicker = createPickerView(TYPE_YEAR, 1.2f);
       mYearPicker.setOnSelectedListener(this);

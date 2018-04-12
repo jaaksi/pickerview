@@ -64,7 +64,7 @@ public class OptionPicker extends BasePicker
    *
    * @param values 选中数据的value{@link OptionDataSet#getValue()}，如果values[0]==null，则进行默认选中，其他为null认为没有该列
    */
-  public void setSelectedWithValues(String... values) {
+  @SuppressWarnings("unchecked") public void setSelectedWithValues(String... values) {
     List<? extends OptionDataSet> temp = mOptions;
     for (int i = 0; i < mHierarchy; i++) {
       PickerView pickerView = getPickerViews().get(i);
@@ -150,7 +150,7 @@ public class OptionPicker extends BasePicker
     return mSelectedPosition;
   }
 
-  private void reset() {
+  @SuppressWarnings("unchecked") private void reset() {
     List<? extends OptionDataSet> temp = mOptions;
     for (int i = 0; i < getPickerViews().size(); i++) {
       PickerView pickerView = getPickerViews().get(i);

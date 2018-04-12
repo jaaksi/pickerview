@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
@@ -159,22 +160,27 @@ public abstract class BasePicker implements View.OnClickListener {
     mPickerContainer.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
     if (sDefaultPaddingRect != null) {
       setPadding(sDefaultPaddingRect.left, sDefaultPaddingRect.top, sDefaultPaddingRect.right,
-        sDefaultPaddingRect.bottom);
+          sDefaultPaddingRect.bottom);
     }
     if (sDefaultPickerBackgroundColor != Color.TRANSPARENT) {
       setPickerBackgroundColor(sDefaultPickerBackgroundColor);
     }
     mRootLayout.addView(mPickerContainer);
 
-    mPickerDialog = new Dialog(mContext, R.style.dialog_pickerview);
-    Window window = mPickerDialog.getWindow();
-    if (window != null) {
-      window.setWindowAnimations(R.style.picker_dialog_anim);
-      // 默认是match_parent的
-      window.setLayout(WindowManager.LayoutParams.MATCH_PARENT,
-        WindowManager.LayoutParams.WRAP_CONTENT);
-      window.setGravity(Gravity.BOTTOM);
-    }
+    mPickerDialog = new Dialog(mContext, R.style.dialog_pickerview) {
+      // 要在onCreate里设置，否则如果style设置了windowIsFloating=true，会变成-2，-2
+      @Override protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Window window = mPickerDialog.getWindow();
+        if (window != null) {
+          window.setWindowAnimations(R.style.picker_dialog_anim);
+          // 默认是match_parent的
+          window.setLayout(WindowManager.LayoutParams.MATCH_PARENT,
+              WindowManager.LayoutParams.WRAP_CONTENT);
+          window.setGravity(Gravity.BOTTOM);
+        }
+      }
+    };
 
     mPickerDialog.setCanceledOnTouchOutside(sDefaultCanceledOnTouchOutside);
     mPickerDialog.setContentView(mRootLayout);
@@ -215,7 +221,7 @@ public abstract class BasePicker implements View.OnClickListener {
     pickerView.setTag(tag);
     // 这里是竖直方向的，如果要设置横向的，则自己再设置LayoutParams
     LinearLayout.LayoutParams params =
-      new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT);
+        new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT);
     params.weight = weight;
     pickerView.setLayoutParams(params);
     if (mInterceptor != null) {
@@ -270,7 +276,7 @@ public abstract class BasePicker implements View.OnClickListener {
     // or a framework id
     if ((key >>> 24) < 2) {
       throw new IllegalArgumentException(
-        "The key must be an application-specific " + "resource id.");
+          "The key must be an application-specific " + "resource id.");
     }
 
     setKeyedTag(key, tag);

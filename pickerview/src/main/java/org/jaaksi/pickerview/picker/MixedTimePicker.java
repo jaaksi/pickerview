@@ -24,7 +24,7 @@ import org.jaaksi.pickerview.widget.PickerView;
  */
 
 public class MixedTimePicker extends BasePicker
-  implements BasePickerView.OnSelectedListener, BasePickerView.Formatter {
+    implements BasePickerView.OnSelectedListener, BasePickerView.Formatter {
 
   public static final DateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("yyyy年MM月dd日");
   public static final DateFormat DEFAULT_TIME_FORMAT = new SimpleDateFormat("HH:mm");
@@ -107,7 +107,7 @@ public class MixedTimePicker extends BasePicker
     return (mType & type) == type;
   }
 
-  private void initPicker() {
+  @SuppressWarnings("unchecked") private void initPicker() {
     if (hasType(TYPE_DATE)) { // 如果包含Date
       mDatePicker = createPickerView(TYPE_DATE, 1.5f);
       mDatePicker.setFormatter(this);
@@ -124,8 +124,8 @@ public class MixedTimePicker extends BasePicker
   private void handleData() {
     if (mStartDate != null) {
       if (mSelectedDate == null
-        || mSelectedDate.getTimeInMillis() < mStartDate.getTimeInMillis()
-        || mSelectedDate.getTimeInMillis() > mEndDate.getTimeInMillis()) {
+          || mSelectedDate.getTimeInMillis() < mStartDate.getTimeInMillis()
+          || mSelectedDate.getTimeInMillis() > mEndDate.getTimeInMillis()) {
         updateSelectedDate(mStartDate.getTimeInMillis());
       }
     }
@@ -158,7 +158,7 @@ public class MixedTimePicker extends BasePicker
     if (mType == TYPE_TIME) {
       // 纯时间模式 如果设置了star and end 就直接认为是当天（只考虑时间），否则直接start=0,end=结束
       last = isInit ? getValidTimeMinutes(mSelectedDate, true)
-        : mTimePicker.getSelectedItem() * mTimeMinuteOffset;
+          : mTimePicker.getSelectedItem() * mTimeMinuteOffset;
       if (mStartDate != null && mEndDate != null) {
         start = getValidTimeMinutes(mStartDate, true);
         end = getValidTimeMinutes(mEndDate, false);
@@ -179,12 +179,12 @@ public class MixedTimePicker extends BasePicker
 
       start = offset(selectCalendar, mStartDate) == 0 ? getValidTimeMinutes(mStartDate, true) : 0;
       end = offset(selectCalendar, mEndDate) == 0 ? getValidTimeMinutes(mEndDate, false)
-        : getValidTimeMinutes(24 * 60 - mTimeMinuteOffset, false);
+          : getValidTimeMinutes(24 * 60 - mTimeMinuteOffset, false);
     }
 
     //  adapter 的item设置的是 有效分钟数/mTimeMinuteOffset
     mTimePicker.setAdapter(
-      new NumericWheelAdapter(getValidTimesValue(start), getValidTimesValue(end)));
+        new NumericWheelAdapter(getValidTimesValue(start), getValidTimesValue(end)));
     mTimePicker.setSelectedPosition(findPositionByValidTimes(last), false);
   }
 
@@ -260,7 +260,12 @@ public class MixedTimePicker extends BasePicker
   // 获取选中的日期和时间
   private Date getSelectedDates() {
     Calendar calendar = Calendar.getInstance();
-    calendar.setTimeInMillis(mSelectedDate.getTimeInMillis());
+    if (hasType(TYPE_DATE)) {
+      calendar.setTimeInMillis(mStartDate.getTimeInMillis());
+      calendar.add(Calendar.DAY_OF_YEAR, mDatePicker.getSelectedPosition());
+    } else if (mSelectedDate != null) { // 如果没有日期，则取选中时间的起始日期
+      calendar.setTimeInMillis(mSelectedDate.getTimeInMillis());
+    }
     if (hasType(TYPE_TIME)) {
       int hour = mTimePicker.getSelectedItem() * mTimeMinuteOffset / 60;
       calendar.set(Calendar.HOUR_OF_DAY, hour);
@@ -311,10 +316,10 @@ public class MixedTimePicker extends BasePicker
     if (tag == TYPE_DATE) {
       // 根据起始及偏移量，计算出当前position对应的day
       return mFormatter.format(MixedTimePicker.this, TYPE_DATE, getPositionDate(position),
-        position);
+          position);
     } else if (tag == TYPE_TIME) {
       return mFormatter.format(MixedTimePicker.this, TYPE_TIME, getPositionTime(position),
-        position);
+          position);
     }
     return charSequence;
   }
