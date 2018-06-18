@@ -54,6 +54,12 @@ public class TimePicker extends BasePicker
   private int mStartMinute;
   private int mEndMinute;
 
+  // 时间分钟间隔
+  private int mTimeMinuteOffset;
+  // 设置offset时，是否包含起止时间
+  private boolean mContainsStarDate;
+  private boolean mContainsEndDate;
+
   private Formatter mFormatter;
   private OnTimeSelectListener mOnTimeSelectListener;
 
@@ -109,7 +115,7 @@ public class TimePicker extends BasePicker
       calendar.set(Calendar.HOUR_OF_DAY, mHourPicker.getSelectedItem());
     }
     if (hasType(TYPE_MINUTE)) {
-      calendar.set(Calendar.MINUTE, mMinutePicker.getSelectedItem());
+      calendar.set(Calendar.MINUTE, getRealMinute(mMinutePicker.getSelectedItem()));
     }
     // 选中时间取设置的时间，没有的，不做任何更改
     //calendar.set(Calendar.SECOND, 0);
@@ -165,6 +171,9 @@ public class TimePicker extends BasePicker
       || mSelectedDate.getTimeInMillis() > mEndDate.getTimeInMillis()) {
       updateSelectedDate(mStartDate.getTimeInMillis());
     }
+    if (mTimeMinuteOffset < 1) {
+      mTimeMinuteOffset = 1;
+    }
     mStartYear = mStartDate.get(Calendar.YEAR);
     mEndYear = mEndDate.get(Calendar.YEAR);
     mStartMonth = mStartDate.get(Calendar.MONTH) + 1;
@@ -173,8 +182,8 @@ public class TimePicker extends BasePicker
     mEndDay = mEndDate.get(Calendar.DAY_OF_MONTH);
     mStartHour = mStartDate.get(Calendar.HOUR_OF_DAY);
     mEndHour = mEndDate.get(Calendar.HOUR_OF_DAY);
-    mStartMinute = mStartDate.get(Calendar.MINUTE);
-    mEndMinute = mEndDate.get(Calendar.MINUTE);
+    mStartMinute = getValidTimeMinutes(mStartDate.get(Calendar.MINUTE), true);
+    mEndMinute = getValidTimeMinutes(mEndDate.get(Calendar.MINUTE), false);
   }
 
   private void reset() {
@@ -185,8 +194,9 @@ public class TimePicker extends BasePicker
         mYearPicker.setAdapter(
           new NumericWheelAdapter(mStartDate.get(Calendar.YEAR), mEndDate.get(Calendar.YEAR)));
       }
-      mYearPicker.setSelectedPosition(
-        mSelectedDate.get(Calendar.YEAR) - mYearPicker.getAdapter().getItem(0), false);
+      mYearPicker
+        .setSelectedPosition(mSelectedDate.get(Calendar.YEAR) - mYearPicker.getAdapter().getItem(0),
+          false);
     }
 
     resetMonthAdapter(true);
@@ -260,16 +270,58 @@ public class TimePicker extends BasePicker
         hasType(TYPE_DAY) ? mDayPicker.getSelectedItem() : mSelectedDate.get(Calendar.DAY_OF_MONTH);
       int hour = hasType(TYPE_HOUR) ? mHourPicker.getSelectedItem()
         : mSelectedDate.get(Calendar.HOUR_OF_DAY);
-      int last = isInit ? mSelectedDate.get(Calendar.MINUTE) : mMinutePicker.getSelectedItem();
+      int last = isInit ? mStartMinute : getRealMinute(mMinutePicker.getSelectedItem());
       int start =
         year == mStartYear && month == mStartMonth && day == mStartDay && hour == mStartHour
           ? mStartMinute : 0;
       int end =
         year == mEndYear && month == mEndMonth && day == mEndDay && hour == mEndHour ? mEndMinute
-          : 59;
-      mMinutePicker.setAdapter(new NumericWheelAdapter(start, end));
-      mMinutePicker.setSelectedPosition(last - mMinutePicker.getAdapter().getItem(0), false);
+          : 60 - mTimeMinuteOffset;
+      mMinutePicker
+        .setAdapter(new NumericWheelAdapter(getValidMinuteValue(start), getValidMinuteValue(end)));
+      mMinutePicker.setSelectedPosition(findPositionByValidTimes(last), false);
     }
+  }
+
+  // 获取有效分钟数对应的item的数值
+  private int getValidMinuteValue(int validTimeMinutes) {
+    return validTimeMinutes / mTimeMinuteOffset;
+  }
+
+  // 通过有效分钟数找到在adapter中的position
+  private int findPositionByValidTimes(int validTimeMinutes) {
+    int timesValue = getValidMinuteValue(validTimeMinutes);
+    return timesValue - mMinutePicker.getAdapter().getItem(0);
+  }
+
+  // 获指定position的分钟item对应的真实的分钟数
+  private int getRealMinute(int position) {
+    return position * mTimeMinuteOffset;
+  }
+
+  /**
+   * 获取根据mTimeMinuteOffset处理后的有效分钟数
+   * 默认为 start <= X <= end 即都不包含在内
+   */
+  private int getValidTimeMinutes(int timeMinutes, boolean isStart) {
+    int validTimeMinutes;
+    int offset = timeMinutes % mTimeMinuteOffset;
+    if (offset == 0) {
+      validTimeMinutes = timeMinutes;
+    } else {
+      if (isStart) {
+        validTimeMinutes = timeMinutes - offset;
+        if (!mContainsStarDate) {
+          validTimeMinutes += mTimeMinuteOffset;
+        }
+      } else {
+        validTimeMinutes = timeMinutes - offset;
+        if (mContainsEndDate) {
+          validTimeMinutes += mTimeMinuteOffset;
+        }
+      }
+    }
+    return validTimeMinutes;
   }
 
   @Override public void onSelected(BasePickerView pickerView, int position) {
@@ -301,7 +353,8 @@ public class TimePicker extends BasePicker
   public CharSequence format(BasePickerView pickerView, int position, CharSequence charSequence) {
     if (mFormatter == null) return charSequence;
     int type = (int) pickerView.getTag();
-    int num = Integer.parseInt(charSequence.toString());
+    int value = Integer.parseInt(charSequence.toString());
+    int num = type == TYPE_MINUTE ? getRealMinute(value) : value;
     return mFormatter.format(this, type, position, num);
   }
 
@@ -315,6 +368,12 @@ public class TimePicker extends BasePicker
     private Formatter mFormatter;
     private OnTimeSelectListener mOnTimeSelectListener;
     private Interceptor mInterceptor;
+
+    // 时间分钟间隔
+    private int mTimeMinuteOffset = 1;
+    // 设置mTimeMinuteOffset时，是否包含起止时间
+    private boolean mContainsStarDate = false;
+    private boolean mContainsEndDate = false;
 
     /**
      * 强制设置的属性直接在构造方法中设置
@@ -349,6 +408,36 @@ public class TimePicker extends BasePicker
       return this;
     }
 
+    /**
+     * 设置时间间隔分钟数，以0为起始边界
+     *
+     * @param timeMinuteOffset 60%offset==0才有效
+     */
+    public Builder setTimeMinuteOffset(int timeMinuteOffset) {
+      mTimeMinuteOffset = timeMinuteOffset;
+      return this;
+    }
+
+    /**
+     * 设置mTimeMinuteOffset作用时，是否包含超出的startDate
+     *
+     * @param containsStarDate 是否包含startDate
+     */
+    public Builder setContainsStarDate(boolean containsStarDate) {
+      mContainsStarDate = containsStarDate;
+      return this;
+    }
+
+    /**
+     * 设置mTimeMinuteOffset作用时，是否包含超出的endDate
+     *
+     * @param containsEndDate 是否包含endDate
+     */
+    public Builder setContainsEndDate(boolean containsEndDate) {
+      mContainsEndDate = containsEndDate;
+      return this;
+    }
+
     public Builder setFormatter(Formatter formatter) {
       mFormatter = formatter;
       return this;
@@ -364,6 +453,9 @@ public class TimePicker extends BasePicker
       // 不支持重复设置的，都在builder中控制，一次性行为
       picker.setInterceptor(mInterceptor);
       picker.setRangDate(mStartDate, mEndDate);
+      picker.mTimeMinuteOffset = mTimeMinuteOffset;
+      picker.mContainsStarDate = mContainsStarDate;
+      picker.mContainsEndDate = mContainsEndDate;
       if (mFormatter == null) {
         mFormatter = new DefaultFormatter();
       }

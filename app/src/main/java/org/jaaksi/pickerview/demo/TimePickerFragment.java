@@ -64,6 +64,7 @@ public class TimePickerFragment extends BaseFragment
     mTimePicker = new TimePicker.Builder(mActivity, type, this)
       // 设置时间区间
       .setRangDate(1526361240000L, 1893563460000L)
+      .setTimeMinuteOffset(10)
       // 设置选中时间
       //.setSelectedDate()
       // 设置pickerview样式
