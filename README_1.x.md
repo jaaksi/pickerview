@@ -1,12 +1,13 @@
 # One very very user-friendly Picker library
 一个非常好用的Android PickerView库，内部提供3种常用类型的Picker。支持扩展自定义Picker。
-* TimePicker：时间选择器，支持聚合模式（合并v1.x的MixedTimePicker）
+* TimePicker：时间选择器，包含日期
+* MixedTimePicker:：聚合的时间选择器
 * OptionPicker：联动选择器
 
 ## Screenshot
-![](https://github.com/jaaksi/pickerview/blob/master/docs/TimePicker.png)
-![](https://github.com/jaaksi/pickerview/blob/master/docs/MixedTimePicker.png)
-![](https://github.com/jaaksi/pickerview/blob/master/docs/OptionPicker.png)
+![](https://github.com/jaaksi/pickerview/blob/master/docs/TimePicker.gif)
+![](https://github.com/jaaksi/pickerview/blob/master/docs/MixedTimePicker.gif)
+![](https://github.com/jaaksi/pickerview/blob/master/docs/custom.png)
 
 ## APK
 [Demo App](https://github.com/jaaksi/pickerview/blob/master/docs/app-debug.apk)下载连接
@@ -82,7 +83,7 @@ TopBar:TopBar通过抽象接口ITopBar来管理，实现Picker与TopBar的解耦
 ```java
    private void init(){
     mTimePicker.setInterceptor(new BasePicker.Interceptor() {
-      @Override public void intercept(PickerView pickerView, LinearLayout.LayoutParams params) {
+      @Override public void intercept(PickerView pickerView) {
         pickerView.setVisibleItemCount(5);
         // 将年月设置为循环的
         int type = (int) pickerView.getTag();
@@ -96,13 +97,11 @@ TopBar:TopBar通过抽象接口ITopBar来管理，实现Picker与TopBar的解耦
 这一点对比 [Android-PickerView](https://github.com/Bigkoo/Android-PickerView/blob/master/pickerview/src/main/java/com/bigkoo/pickerview/TimePickerView.java), 每个Picker都需要声明对PickerView的设置方法，与PickerView严重耦合。需要开发者copy大量重复代码，且无法区分每一个PickerView设置不同的属性。
 
 ## TimePicker
-常用的时间选择器，支持 年、月、日、时、分，支持聚合（1.x 的MixTimePicker）
+常用的时间选择器，支持 年、月、日、时、分
   * 时间类型type的设计：自由组合、随心所欲(当然应该是有意义的)
   ```
     TYPE_YEAR | TYPE_MONTH | TYPE_DAY | TYPE_HOUR | TYPE_MINUTE
-    
-    TYPE_MIXED_DATE | TYPE_MIXED_TIME
-  ``` 
+  ```
 对比 Android-PickerView [TimePickerView](https://github.com/Bigkoo/Android-PickerView/blob/master/pickerview/src/main/java/com/bigkoo/pickerview/TimePickerView.java)
   ```java
     /**
@@ -115,9 +114,7 @@ TopBar:TopBar通过抽象接口ITopBar来管理，实现Picker与TopBar的解耦
     setType(TYPE_DATE | TYPE_HOUR)
   ```
   * 完美支持时间区间设置以及选中联动
-  * 支持支持自定义日期、时间格式（Format），如显示今年，明年
-  * 支持混合模式，支持日期，时间混合
-  * 支持设置时间间隔，如30分钟
+  * 支持Format，如显示今年，明年
 
 ### API
 |api|description|
@@ -139,17 +136,16 @@ TopBar:TopBar通过抽象接口ITopBar来管理，实现Picker与TopBar的解耦
 TimePicker Formatter：用于根据type和num格式化时间文案
   ```java
     public interface Formatter {
-        /**
-         * 根据type和num格式化时间
-         *
-         * @param picker picker
-         * @param type 并不是模式，而是当前item所属的type，如年，时
-         * @param position position
-         * @param value position item对应的value，如果是TYPE_MIXED_DATE表示日期时间戳，否则表示显示的数字
-         */
-        CharSequence format(TimePicker picker, int type, int position,
-          long value);
-      }
+      /**
+       * 根据type和num格式化时间
+       *
+       * @param picker picker
+       * @param type 并不是模式，而是当前item所属的type，如年，时
+       * @param position position
+       * @param num position item显示的数字
+       */
+      CharSequence format(TimePicker picker, int type, int position, int num);
+    }
   ``` 
 内部提供默认的 Formatter实现DefaultFormatter。用户可以设置自定义Formatter或继承DefaultFormatter进行扩展。
 
@@ -164,7 +160,7 @@ TimePicker Formatter：用于根据type和num格式化时间文案
       //.setSelectedDate()
       // 设置pickerview样式
       .setInterceptor(new BasePicker.Interceptor() {
-        @Override public void intercept(PickerView pickerView, LinearLayout.LayoutParams params) {
+        @Override public void intercept(PickerView pickerView) {
           pickerView.setVisibleItemCount(5);
           // 将年月设置为循环的
           int type = (int) pickerView.getTag();
@@ -176,16 +172,13 @@ TimePicker Formatter：用于根据type和num格式化时间文案
       // 设置 Formatter
       .setFormatter(new TimePicker.DefaultFormatter() {
         // 自定义Formatter显示去年，今年，明年
-        @Override
-        public CharSequence format(TimePicker picker, int type, int position, long num) {
+        @Override public CharSequence format(TimePicker picker, int type, int position, int num) {
           if (type == TimePicker.TYPE_YEAR) {
-            long offset = num - mCurrYear;
+            int offset = num - mCurrYear;
             if (offset == -1) return "去年";
             if (offset == 0) return "今年";
             if (offset == 1) return "明年";
             return num + "年";
-          } else if (type == TimePicker.TYPE_MONTH) {
-            return String.format("%d月", num);
           }
 
           return super.format(picker, type, position, num);
@@ -196,12 +189,86 @@ TimePicker Formatter：用于根据type和num格式化时间文案
     mTimePicker.show();
 ```
 
-## ~~MixedTimePicker~~
-1.x 版本，2.x后已经与TimePicker合并。
+## MixedTimePicker
+常用的聚合时间选择器。日期（年、月、日）聚合，时间（小时、分钟）聚合。
+  * 混合模式：github上的TimePicker库基本都不提供该种类型的Picker
+  * 支持自定义日期格式，时间格式
+  * 支持设置时间间隔
+  * 支持设置区间以及选中联动
+  * 支持设置纯日期，纯时间模式，采用type同TimePicker
+
+### API
+|api|description|
+---|---
+| type | 类型，需要在Builder构造方法中指定，不能改变
+| OnTimeSelectListener | 选中时间回调，需要在Builder构造方法中指定，不能改变
+| setRangDate | 设置起止时间
+| setSelectedDate | 设置选中时间戳
+| setTimeMinuteOffset | 设置时间间隔分钟数(60%offset==0才有效)，以0为起始边界
+| setContainsStarDate | 设置mTimeMinuteOffset作用时，是否包含超出的startDate
+| setContainsEndDate | 设置mTimeMinuteOffset作用时，是否包含超出的endDate
+| setInterceptor | 设置拦截器
+| setFormatter | 设置Formatter，内部提供默认的Formatter
+| create | 通过Builder构建 MixedTimePicker
+| |以上是MixedTimePicker.Builder的，下面是MixedTimePicker的
+| setFormatter | 同上
+| setSelectedDate | 同上
+| getType | 获取type
+| hasType | 判断是否包含某种type
+
+### Formatter
+MixedTimePicker Formatter：用于自定义日期和时间格式。内部提供默认的 Formatter实现。
+```java
+  public interface Formatter {
+    /**
+     * 用户可以自定义日期格式和时间格式
+     *
+     * @param picker picker
+     * @param date 当前状态对应的日期或者时间
+     * @param position 当前type所在的position
+     */
+    CharSequence format(MixedTimePicker picker, int type, Date date, int position);
+    }
+``` 
+> MixedTimePicker 的 Formatter 完美体现了Formatter设计的精妙之处。用户可以根据回调中的type和date自定义日期和时间格式。比如显示今天，或 xx月xx日 星期 x
+
+### Simple Example
+```java
+    mTimePicker = new MixedTimePicker.Builder(mActivity, MixedTimePicker.TYPE_ALL, this)
+      // 设置不包含超出的结束时间<=
+      .setContainsEndDate(false)
+      // 设置时间间隔为30分钟
+      .setTimeMinuteOffset(30)
+      .setRangDate(1517771651000L, 1577976666000L)
+      .setFormatter(new MixedTimePicker.DefaultFormatter() {
+        @Override
+        public CharSequence format(MixedTimePicker picker, int type, Date date, int position) {
+          if (type == MixedTimePicker.TYPE_DATE) {
+            CharSequence text;
+            int dayOffset = DateUtil.getDayOffset(date.getTime(), System.currentTimeMillis());
+            if (dayOffset == 0) {
+              text = "今天";
+            } else if (dayOffset == 1) {
+              text = "明天";
+            } else { // xx月xx日 星期 x
+              text = mDateFormat.format(date);
+            }
+            return text;
+          }
+          return super.format(picker, type, date, position);
+        }
+      })
+      .create();
+    // 2018/2/5 03:14:11 - 2020/1/2 22:51:6
+    Dialog pickerDialog = mTimePicker.getPickerDialog();
+    pickerDialog.setCanceledOnTouchOutside(true);
+    DefaultTopBar topBar = (DefaultTopBar) mTimePicker.getTopBar();
+    topBar.getTitleView().setText("请选择时间");
+```
+> *不同于TimePicker, MixedTimePicker 由于支持纯时间模式（日期取选中时间的日期），不提供默认区间。如果模式中包含日期模式，则会强制要求设置时间区间*
 
 ## OptionPicker
   * 支持设置层级
-  * 支持联动和不联动（2.x版本）
   * 构造数据源及其简单，只需要实现OptionDataSet接口
   * 支持通过对应选中的values设置选中项。内部处理选中项逻辑，避免用户记录下标且麻烦的遍历处理
 
@@ -212,8 +279,7 @@ function | Android-PickerViews | 本控件
 多级 | 最多支持3级(写死的) | 构造时设置级别(无限制)
 构造数据源 | 需要构建每一级的集合，二三级为嵌套 | 一级数据entity实现OptionDataSet接口即可
 设置数据源 | 提供三个方法，分别用于一、二、三级的 | 只需要设置一级数据集
-联动选中 | 提供三个，只能设置选中的下标。<br/>
-需要用户自己通过多层遍历定位每一级别选中的下标，然后再设置 | 只需要传入选中的values(可变长数组)，不需要任何计算
+联动选中 | 提供三个，只能设置选中的下标。<br/>需要用户自己通过多层遍历定位每一级别选中的下标，然后再设置 | 只需要传入选中的values(可变长数组)，不需要任何计算
 
 Android-PickerView 中的 OptionsPickerView 代码。由于不知道层级，所以每个方法都提供3个用来对应（最多）3级选择。
 ```java
@@ -234,15 +300,26 @@ Android-PickerView 中的 OptionsPickerView 代码。由于不知道层级，所
     }
 ```
 
-本库中的OptionPicker（2.x）
+本库中的OptionPicker
 ```java
 /**
+   * 根据选中的values初始化选中的position并初始化pickerview数据
+   *
+   * @param options data
+   * @param values 选中数据的value{@link OptionDataSet#getValue()}
+   */
+  public void setDataWithValues(List<? extends OptionDataSet> options, String... values) {
+    mOptions = options;
+    setSelectedWithValues(values);
+  }
+
+  /**
    * 根据选中的values初始化选中的position
    *
    * @param values 选中数据的value{@link OptionDataSet#getValue()}，如果values[0]==null，则进行默认选中，其他为null认为没有该列
    */
   public void setSelectedWithValues(String... values) {
-    mDelegate.setSelectedWithValues(values);
+  ...
   }
 ```
 > 如上面对比表格中所列举的，无论是层级，构造数据源和设置数据源，还是设置选中的选项，本库的API都十分简单，方便。
@@ -257,8 +334,10 @@ Android-PickerView 中的 OptionsPickerView 代码。由于不知道层级，所
 | create | 通过Builder构建 OptionPicker
 | |以上是OptionPicker.Builder的，下面是OptionPicker的
 | setFormatter | 同上
-| setData | 初始化pickerview数据。
+| setDataWithValues | 根据选中的values初始化选中的position并初始化pickerview数据。<br/>values参数为可变长数组，可以不设置。
+| setDataWithIndexs | 设置数据和选中position。不建议使用，建议使用 setDataWithValues
 | setSelectedWithValues | 根据选中的values初始化选中的position
+| setSelectedWithIndexs | 设置选中的position。不建议使用，建议使用 setSelectedWithValues
 | getOptions | 获取数据集
 | getSelectedPosition | 获取选中的下标，数组size=mHierarchy，如果为-1表示该列没有数据
 | getSelectedOptions | 获取选中的选项，如果指定index为null则表示该列没有数据
@@ -362,14 +441,6 @@ public class MyApplication extends Application {
 ```
 
 ## Change Log
-  > v2.0.0(2019-03-25)
-  - release v2.0.0
-  - 合并MixedTimePicker和TimePicker，更强大
-  _ OptionPicker支持数据不联动
-  - 添加蒙版遮罩
-  - 修复fling时可能会导致onSelect不回调等部分小bug
-  - 优化部分小细节
-
   > v1.0.0(2018-03-03)
   - release v1.0.0
 
@@ -379,7 +450,7 @@ public class MyApplication extends Application {
 
 ## Gradle
 ```java
-    compile 'org.jaaksi:pickerview:2.0.0'
+    compile 'org.jaaksi:pickerview:1.0.1'
 ```
 
 ## Thanks

@@ -3,12 +3,11 @@ apply plugin: 'com.novoda.bintray-release'
 apply from: 'publish.gradle'
 
 android {
-  compileSdkVersion 26
-  buildToolsVersion '26.0.3'
+  compileSdkVersion 27
 
   defaultConfig {
     minSdkVersion 15
-    targetSdkVersion 26
+    targetSdkVersion 27
     //    versionCode 1
     //    versionName "1.0"
   }
@@ -41,6 +40,5 @@ android {
 }
 
 dependencies {
-
-  provided "com.android.support:support-v4:26.1.0"
+  implementation 'com.android.support:support-v4:27.1.1'
 }
