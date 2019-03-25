@@ -40,6 +40,8 @@ public abstract class BasePickerView<T> extends View {
   public static int sDefaultItemSize = 50; //dp
   /** 默认是否循环：false */
   public static boolean sDefaultIsCirculation = false;
+  /** 默认值：是否绘制 CenterDecoration */
+  public static boolean sDefaultDrawIndicator = true;
 
   private boolean mIsInertiaScroll = true; // 快速滑动时是否惯性滚动一段距离，默认开启
   private boolean mIsCirculation = false; // 是否循环滚动，默认关闭
@@ -80,10 +82,14 @@ public abstract class BasePickerView<T> extends View {
   private int mLastScrollX = 0; // Scroller的坐标x
 
   private boolean mDisallowTouch = false; // 不允许触摸
+  private int mSelectedOnTouch;
 
   private Paint mPaint;
   private CenterDecoration mCenterDecoration;
   public static final boolean DEFAULT_DRAW_INDICATOR_NO_DATA = true;
+
+  /** 是否绘制 CenterDecoration */
+  private boolean mDrawIndicator = sDefaultDrawIndicator;
   // 当没有数据时是否绘制指示器
   private boolean mDrawIndicatorNoData = DEFAULT_DRAW_INDICATOR_NO_DATA;
   private boolean mCanTap = true; // 单击切换选项或触发点击监听器
@@ -115,8 +121,8 @@ public abstract class BasePickerView<T> extends View {
       TypedArray typedArray =
         getContext().obtainStyledAttributes(attrs, R.styleable.BasePickerView);
 
-      mVisibleItemCount = typedArray.getInt(R.styleable.BasePickerView_pv_visible_item_count,
-        sDefaultVisibleItemCount);
+      mVisibleItemCount = typedArray
+        .getInt(R.styleable.BasePickerView_pv_visible_item_count, sDefaultVisibleItemCount);
       mItemSize = typedArray.getDimensionPixelSize(R.styleable.BasePickerView_pv_item_size, 0);
       int centerPosition =
         typedArray.getInt(R.styleable.BasePickerView_pv_center_item_position, -1);
@@ -125,8 +131,8 @@ public abstract class BasePickerView<T> extends View {
       }
       setIsCirculation(
         typedArray.getBoolean(R.styleable.BasePickerView_pv_is_circulation, sDefaultIsCirculation));
-      setDisallowInterceptTouch(
-        typedArray.getBoolean(R.styleable.BasePickerView_pv_disallow_intercept_touch,
+      setDisallowInterceptTouch(typedArray
+        .getBoolean(R.styleable.BasePickerView_pv_disallow_intercept_touch,
           isDisallowInterceptTouch()));
       mIsHorizontal =
         typedArray.getInt(R.styleable.BasePickerView_pv_orientation, mIsHorizontal ? 1 : 2) == 1;
@@ -144,6 +150,15 @@ public abstract class BasePickerView<T> extends View {
    */
   public void setCenterDecoration(CenterDecoration centerDecoration) {
     mCenterDecoration = centerDecoration;
+  }
+
+  /**
+   * 设置是否绘制指示器
+   *
+   * @param drawIndicator 是否绘制指示器
+   */
+  public void setDrawIndicator(boolean drawIndicator) {
+    mDrawIndicator = drawIndicator;
   }
 
   /**
@@ -168,11 +183,12 @@ public abstract class BasePickerView<T> extends View {
     return mFormatter;
   }
 
-  @Override protected void onDraw(Canvas canvas) {
+  @Override
+  protected void onDraw(Canvas canvas) {
 
     boolean noData = mAdapter == null || mAdapter.getItemCount() <= 0;
 
-    if (!noData || (mDrawIndicatorNoData)) {
+    if (mDrawIndicator && (!noData || (mDrawIndicatorNoData))) {
       if (mCenterDecoration == null) {
         mCenterDecoration = new DefaultCenterDecoration(getContext());
       }
@@ -244,7 +260,8 @@ public abstract class BasePickerView<T> extends View {
   public abstract void drawItem(Canvas canvas, T data, int position, int relative, float moveLength,
     float top);
 
-  @Override protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+  @Override
+  protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
     // 根据方向判断是不是MeasureSpec.EXACTLY的，如vertical，height=match_parent则根据高度计算itemSize，否则根据itemSize设置高度
     if (mIsHorizontal) {
       if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY) {
@@ -265,7 +282,8 @@ public abstract class BasePickerView<T> extends View {
     super.onMeasure(widthMeasureSpec, heightMeasureSpec);
   }
 
-  @Override protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+  @Override
+  protected void onSizeChanged(int w, int h, int oldw, int oldh) {
     super.onSizeChanged(w, h, oldw, oldh);
     // 测量结果之后的尺寸才是有效的，调用reset重新计算
     reset();
@@ -296,13 +314,18 @@ public abstract class BasePickerView<T> extends View {
     }
   }
 
-  @Override public boolean onTouchEvent(MotionEvent event) {
+  @Override
+  public boolean onTouchEvent(MotionEvent event) {
     if (mDisallowTouch) { // 不允许触摸
       return true;
     }
 
     if (mAdapter == null || mAdapter.getItemCount() <= 0) {
       return false;
+    }
+
+    if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+      mSelectedOnTouch = mSelected;
     }
 
     if (mGestureDetector.onTouchEvent(event)) {
@@ -331,7 +354,13 @@ public abstract class BasePickerView<T> extends View {
       case MotionEvent.ACTION_UP:
         mLastMoveY = event.getY();
         mLastMoveX = event.getX();
-        moveToCenter();
+        if (mMoveLength == 0) {
+          if (mSelectedOnTouch != mSelected) { //前后发生变化
+            notifySelected();
+          }
+        } else {
+          moveToCenter(); // 滚动到中间位置
+        }
         break;
     }
     return true;
@@ -374,15 +403,13 @@ public abstract class BasePickerView<T> extends View {
         }
       }
       checkCirculation();
-      mMoveLength = 0;
-      mLastScrollY = 0;
-      mLastScrollX = 0;
       notifySelected();
       invalidate();
     }
   }
 
-  @Override public void computeScroll() {
+  @Override
+  public void computeScroll() {
     if (mScroller.computeScrollOffset()) { // 正在滚动
       if (mIsHorizontal) {
         // 可以把scroller看做模拟的触屏滑动操作，mLastScrollX为上次滑动的坐标
@@ -398,12 +425,12 @@ public abstract class BasePickerView<T> extends View {
     } else { // 滚动完毕
       if (mIsFling) {
         mIsFling = false;
-        moveToCenter(); // 滚动到中间位置
+        if (mMoveLength == 0) { //惯性滑动后的位置刚好居中的情况
+          notifySelected();
+        } else {
+          moveToCenter(); // 滚动到中间位置
+        }
       } else if (mIsMovingCenter) { // 选择完成，回调给监听器
-        mMoveLength = 0;
-        mIsMovingCenter = false;
-        mLastScrollY = 0;
-        mLastScrollX = 0;
         notifySelected();
       }
     }
@@ -541,13 +568,11 @@ public abstract class BasePickerView<T> extends View {
   }
 
   private void notifySelected() {
+    mMoveLength = 0;
+    cancelScroll();
     if (mListener != null) {
       // 告诉监听器选择完毕
-      post(new Runnable() {
-        @Override public void run() {
-          mListener.onSelected(BasePickerView.this, mSelected);
-        }
-      });
+      mListener.onSelected(BasePickerView.this, mSelected);
     }
   }
 
@@ -584,7 +609,8 @@ public abstract class BasePickerView<T> extends View {
     mAutoScrollAnimator.removeAllUpdateListeners();
     if (end != 0) { // itemHeight为0导致endy=0
       mAutoScrollAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-        @Override public void onAnimationUpdate(ValueAnimator animation) {
+        @Override
+        public void onAnimationUpdate(ValueAnimator animation) {
           float rate = 0;
           rate = animation.getCurrentPlayTime() * 1f / animation.getDuration();
           computeScroll((int) animation.getAnimatedValue(), end, rate);
@@ -592,7 +618,8 @@ public abstract class BasePickerView<T> extends View {
       });
       mAutoScrollAnimator.removeAllListeners();
       mAutoScrollAnimator.addListener(new AnimatorListenerAdapter() {
-        @Override public void onAnimationEnd(Animator animation) {
+        @Override
+        public void onAnimationEnd(Animator animation) {
           super.onAnimationEnd(animation);
           mIsAutoScrolling = false;
         }
@@ -654,7 +681,8 @@ public abstract class BasePickerView<T> extends View {
     mAutoScrollAnimator.setDuration(duration);
     mAutoScrollAnimator.removeAllUpdateListeners();
     mAutoScrollAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-      @Override public void onAnimationUpdate(ValueAnimator animation) {
+      @Override
+      public void onAnimationUpdate(ValueAnimator animation) {
         float rate = 0;
         rate = animation.getCurrentPlayTime() * 1f / animation.getDuration();
         computeScroll((int) animation.getAnimatedValue(), endY, rate);
@@ -662,7 +690,8 @@ public abstract class BasePickerView<T> extends View {
     });
     mAutoScrollAnimator.removeAllListeners();
     mAutoScrollAnimator.addListener(new AnimatorListenerAdapter() {
-      @Override public void onAnimationEnd(Animator animation) {
+      @Override
+      public void onAnimationEnd(Animator animation) {
         super.onAnimationEnd(animation);
         mIsAutoScrolling = false;
         mDisallowTouch = temp;
@@ -680,7 +709,8 @@ public abstract class BasePickerView<T> extends View {
   }
 
   private static class SlotInterpolator implements Interpolator {
-    @Override public float getInterpolation(float input) {
+    @Override
+    public float getInterpolation(float input) {
       return (float) (Math.cos((input + 1) * Math.PI) / 2.0f) + 0.5f;
     }
   }
@@ -726,7 +756,8 @@ public abstract class BasePickerView<T> extends View {
     /**
      * 快速点击，立刻抬起触发。这里用来
      */
-    @Override public boolean onSingleTapUp(MotionEvent e) {
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
       mLastMoveY = e.getY();
       mLastMoveX = e.getX();
       float lastMove = 0;
@@ -738,16 +769,14 @@ public abstract class BasePickerView<T> extends View {
         lastMove = mLastMoveY;
       }
       if (mCanTap && !isScrolling() && !mIsScrollingLastTime) {
-        if (lastMove >= mCenterPoint && lastMove <= mCenterPoint + mItemSize) {
+        if (lastMove >= mCenterPoint && lastMove <= mCenterPoint + mItemSize) { //点击中间item，回调点击事件
           performClick();
-        } else if (lastMove < mCenterPoint) {
+        } else if (lastMove < mCenterPoint) { // 点击两边的item，移动到相应的item
           int move = mItemSize;
           autoScrollTo(move, 150, sAutoScrollInterpolator, false);
-        } else if (lastMove > mCenterPoint + mItemSize) {
+        } else { // lastMove > mCenterPoint + mItemSize
           int move = -mItemSize;
           autoScrollTo(move, 150, sAutoScrollInterpolator, false);
-        } else {
-          moveToCenter();
         }
       } else {
         moveToCenter();
@@ -805,7 +834,7 @@ public abstract class BasePickerView<T> extends View {
     }
     mSelected = position;
     invalidate();
-    if (isNotify && mListener != null) {
+    if (isNotify/* && mListener != null*/) {
       notifySelected();
     }
   }
@@ -992,10 +1021,6 @@ public abstract class BasePickerView<T> extends View {
     return mIsHorizontal;
   }
 
-  public boolean isVertical() {
-    return !mIsHorizontal;
-  }
-
   public void setHorizontal(boolean horizontal) {
     if (mIsHorizontal == horizontal) {
       return;
@@ -1005,20 +1030,19 @@ public abstract class BasePickerView<T> extends View {
     invalidate();
   }
 
-  public void setVertical(boolean vertical) {
-    if (mIsHorizontal == !vertical) {
-      return;
-    }
-    mIsHorizontal = !vertical;
-    reset();
-    invalidate();
-  }
-
-  @Override public void setVisibility(int visibility) {
+  @Override
+  public void setVisibility(int visibility) {
     super.setVisibility(visibility);
     if (visibility == VISIBLE) {
       moveToCenter();
     }
+  }
+
+  /**
+   * 在一定精度内比较浮点数
+   */
+  public static boolean equalsFloat(double a, double b) {
+    return a == b || Math.abs(a - b) < 0.01f;
   }
 
   /**

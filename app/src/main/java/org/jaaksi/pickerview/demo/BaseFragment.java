@@ -17,7 +17,8 @@ import android.view.ViewGroup;
 public abstract class BaseFragment extends Fragment {
   protected Activity mActivity;
 
-  @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
+  @Override
+  public View onCreateView(LayoutInflater inflater, ViewGroup container,
     Bundle savedInstanceState) {
     mActivity = getActivity();
     View view = inflater.inflate(getLayoutId(), container, false);

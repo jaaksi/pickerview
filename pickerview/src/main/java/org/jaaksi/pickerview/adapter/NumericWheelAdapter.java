@@ -19,11 +19,13 @@ public class NumericWheelAdapter implements WheelAdapter<Integer> {
     this.maxValue = maxValue;
   }
 
-  @Override public int getItemCount() {
+  @Override
+  public int getItemCount() {
     return maxValue - minValue + 1;
   }
 
-  @Override public Integer getItem(int index) {
+  @Override
+  public Integer getItem(int index) {
     if (index >= 0 && index < getItemCount()) {
       return minValue + index;
     }

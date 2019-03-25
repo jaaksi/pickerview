@@ -13,15 +13,18 @@ public class Province implements OptionDataSet {
   public String name;
   public List<City> citys;
 
-  @Override public CharSequence getCharSequence() {
+  @Override
+  public CharSequence getCharSequence() {
     return name;
   }
 
-  @Override public List<City> getSubs() {
+  @Override
+  public List<City> getSubs() {
     return citys;
   }
 
-  @Override public String getValue() {
+  @Override
+  public String getValue() {
     return String.valueOf(id);
   }
 }

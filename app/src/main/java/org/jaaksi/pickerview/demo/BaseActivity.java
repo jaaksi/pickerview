@@ -14,7 +14,8 @@ import android.support.v7.app.AppCompatActivity;
 public class BaseActivity extends AppCompatActivity {
   protected Activity mContext;
 
-  @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
+  @Override
+  protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mContext = this;
   }

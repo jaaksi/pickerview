@@ -21,7 +21,8 @@ public class ArrayWheelAdapter<T> implements WheelAdapter<T> {
     return items;
   }
 
-  @Override public T getItem(int index) {
+  @Override
+  public T getItem(int index) {
     if (items == null) return null;
 
     if (index >= 0 && index < getItemCount()) {
@@ -30,7 +31,8 @@ public class ArrayWheelAdapter<T> implements WheelAdapter<T> {
     return null;
   }
 
-  @Override public int getItemCount() {
+  @Override
+  public int getItemCount() {
     return items != null ? items.size() : 0;
   }
 }

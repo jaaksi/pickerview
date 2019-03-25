@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.ColorInt;
 import android.text.Layout;
 import android.text.StaticLayout;
@@ -43,6 +44,13 @@ public class PickerView<T> extends BasePickerView<T> {
   private int mCenterColor = sCenterColor; // 中间选中item的颜色
   private int mOutColor = sOutColor; // 上下两边的颜色
   private Layout.Alignment mAlignment = Layout.Alignment.ALIGN_CENTER; // 对齐方式,默认居中
+
+  /** Top and bottom shadows colors */
+  public static int[] sShadowColors = new int[] { 0xffffffff, 0x88ffffff, 0x00ffffff };
+  private int[] mShadowColors = sShadowColors;
+  // Shadows drawables
+  private GradientDrawable mStartShadow;
+  private GradientDrawable mEndShadow;
 
   public PickerView(Context context) {
     this(context, null);
@@ -85,6 +93,31 @@ public class PickerView<T> extends BasePickerView<T> {
     if (mCenterTextSize <= 0) {
       mCenterTextSize = Util.dip2px(getContext(), sCenterTextSize);
     }
+
+    resetShadow();
+  }
+
+  private void resetShadow() {
+    if (mShadowColors == null) {
+      mStartShadow = null;
+      mEndShadow = null;
+    } else {
+      if (isHorizontal()) {
+        mStartShadow = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, mShadowColors);
+        mEndShadow = new GradientDrawable(GradientDrawable.Orientation.RIGHT_LEFT, mShadowColors);
+      } else {
+        mStartShadow = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, mShadowColors);
+        mEndShadow = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, mShadowColors);
+      }
+    }
+  }
+
+  /**
+   * 设置蒙版
+   */
+  public void setShadowsColors(@ColorInt int[] colors) {
+    sShadowColors = colors;
+    resetShadow();
   }
 
   /**
@@ -141,6 +174,14 @@ public class PickerView<T> extends BasePickerView<T> {
   }
 
   @Override
+  protected void onDraw(Canvas canvas) {
+    super.onDraw(canvas);
+    if (mShadowColors != null) {
+      drawShadows(canvas);
+    }
+  }
+
+  @Override
   public void drawItem(Canvas canvas, T data, int position, int relative, float moveLength,
     float top) {
     //  添加一层装饰器
@@ -168,8 +209,8 @@ public class PickerView<T> extends BasePickerView<T> {
       if (moveLength > 0) { // 向下滑动
         mPaint.setTextSize(mOutTextSize);
       } else { // 向上滑动
-        mPaint.setTextSize(
-          mOutTextSize + (mCenterTextSize - mOutTextSize) * -moveLength / itemSize);
+        mPaint
+          .setTextSize(mOutTextSize + (mCenterTextSize - mOutTextSize) * -moveLength / itemSize);
       }
     } else { // 其他
       mPaint.setTextSize(mOutTextSize);
@@ -197,6 +238,18 @@ public class PickerView<T> extends BasePickerView<T> {
     canvas.translate(x, y);
     layout.draw(canvas);
     canvas.restore();
+  }
+
+  /**
+   * Draws shadows on top and bottom of control
+   */
+  private void drawShadows(Canvas canvas) {
+    int height = getItemHeight();
+    mStartShadow.setBounds(0, 0, getWidth(), height);
+    mStartShadow.draw(canvas);
+
+    mEndShadow.setBounds(0, getHeight() - height, getWidth(), getHeight());
+    mEndShadow.draw(canvas);
   }
 
   /**

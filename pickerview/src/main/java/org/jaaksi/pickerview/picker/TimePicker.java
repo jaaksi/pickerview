@@ -1,6 +1,9 @@
 package org.jaaksi.pickerview.picker;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import org.jaaksi.pickerview.adapter.NumericWheelAdapter;
@@ -9,12 +12,16 @@ import org.jaaksi.pickerview.widget.BasePickerView;
 import org.jaaksi.pickerview.widget.PickerView;
 
 /**
- * 创建时间：2018年01月31日15:51 <br>
+ * 创建时间：2018年08月02日15:42 <br>
  * 作者：fuchaoyang <br>
  * 描述：时间选择器
  * 强大点：
  * 1.type的设计，自由组合
  * 2.支持时间区间设置以及选中联动
+ * 3.支持混合模式，支持日期，时间混合
+ * 4.支持自定义日期、时间格式
+ * 5.time支持设置时间间隔，如30分钟。也就是00:00 00:30 01:00 01:30
+ * ，无法被60整除的，如设置13分钟，认为是无效设置，会被忽略。如13 26 39 52,只能选到52
  */
 
 public class TimePicker extends BasePicker
@@ -25,6 +32,10 @@ public class TimePicker extends BasePicker
   public static final int TYPE_DAY = 0x04;
   public static final int TYPE_HOUR = 0x08;
   public static final int TYPE_MINUTE = 0x10;
+  /** 日期聚合 */
+  public static final int TYPE_MIXED_DATE = 0x20;
+  /** 时间聚合 */
+  public static final int TYPE_MIXED_TIME = 0x40;
 
   // 日期：年月日
   public static final int TYPE_DATE = TYPE_YEAR | TYPE_MONTH | TYPE_DAY;
@@ -33,15 +44,21 @@ public class TimePicker extends BasePicker
   // 全部
   public static final int TYPE_ALL = TYPE_DATE | TYPE_TIME;
 
-  private int mType = TYPE_DATE;
+  public static final DateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("yyyy年MM月dd日");
+  public static final DateFormat DEFAULT_TIME_FORMAT = new SimpleDateFormat("HH:mm");
 
-  private PickerView<Integer> mYearPicker, mMonthPicker, mDayPicker, mHourPicker, mMinutePicker;
+  private int mType;
+
+  private PickerView<Integer> mDatePicker, mYearPicker, mMonthPicker, mDayPicker, mTimePicker,
+    mHourPicker, mMinutePicker;
 
   // 初始设置选中的时间，如果不设置为startDate
   private Calendar mSelectedDate;
   private Calendar mStartDate;//开始时间
   //private Calendar mStartDate = Calendar.getInstance();//开始时间
   private Calendar mEndDate;//终止时间
+  // 聚合的日期模式
+  private int mDayOffset = -1;
 
   private int mStartYear;
   private int mEndYear;
@@ -73,12 +90,49 @@ public class TimePicker extends BasePicker
     mFormatter = formatter;
   }
 
+  /**
+   * @param calendar 指定时间
+   * @param isStart 是否是起始时间
+   * @return 指定时间的有效分钟偏移量
+   */
+  private int getValidTimeOffset(/*int timeMinutes,*/Calendar calendar, boolean isStart) {
+    int timeMinutes = calendar.get(Calendar.MINUTE);
+    int validOffset;
+    int offset = timeMinutes % mTimeMinuteOffset;
+    if (offset == 0) {
+      validOffset = 0;
+    } else {
+      validOffset = -offset;
+      if (isStart) {
+        if (!mContainsStarDate) {
+          validOffset += mTimeMinuteOffset;
+        }
+      } else {
+        if (mContainsEndDate) {
+          validOffset += mTimeMinuteOffset;
+        }
+      }
+    }
+    return validOffset;
+  }
+
+  private void ignoreSecond(Calendar calendar) {
+    calendar.set(Calendar.SECOND, 0);
+    calendar.set(Calendar.MILLISECOND, 0);
+  }
+
   private void setRangDate(long startDate, long endDate) {
+    //  重新计算时间区间，bugfix：由于由于起始时间没有考虑时间间隔而导致可能会引起bug
     Calendar calendar = Calendar.getInstance();
     calendar.setTimeInMillis(startDate);
+    ignoreSecond(calendar);
+    calendar.add(Calendar.MINUTE, getValidTimeOffset(calendar, true));
     this.mStartDate = calendar;
+
     calendar = Calendar.getInstance();
     calendar.setTimeInMillis(endDate);
+    ignoreSecond(calendar);
+    calendar.add(Calendar.MINUTE, getValidTimeOffset(calendar, false));
     this.mEndDate = calendar;
   }
 
@@ -97,29 +151,39 @@ public class TimePicker extends BasePicker
       mSelectedDate = Calendar.getInstance();
     }
     mSelectedDate.setTimeInMillis(millis);
+    ignoreSecond(mSelectedDate);
   }
 
-  private Date getSelectedDate() {
+  private Date getSelectedDates() {
     Calendar calendar = Calendar.getInstance();
-    calendar.setTime(mSelectedDate.getTime());
-    if (hasType(TYPE_YEAR)) {
-      calendar.set(Calendar.YEAR, mYearPicker.getSelectedItem());
+    if (hasType(TYPE_MIXED_DATE)) {
+      calendar.setTimeInMillis(mStartDate.getTimeInMillis());
+      calendar.add(Calendar.DAY_OF_YEAR, mDatePicker.getSelectedPosition());
+    } else {
+      calendar.setTime(mSelectedDate.getTime());
+      if (hasType(TYPE_YEAR)) {
+        calendar.set(Calendar.YEAR, mYearPicker.getSelectedItem());
+      }
+      if (hasType(TYPE_MONTH)) {
+        calendar.set(Calendar.MONTH, mMonthPicker.getSelectedItem() - 1);
+      }
+      if (hasType(TYPE_DAY)) {
+        calendar.set(Calendar.DAY_OF_MONTH, mDayPicker.getSelectedItem());
+      }
     }
-    if (hasType(TYPE_MONTH)) {
-      calendar.set(Calendar.MONTH, mMonthPicker.getSelectedItem() - 1);
+    if (hasType(TYPE_MIXED_TIME)) {
+      int hour = mTimePicker.getSelectedItem() * mTimeMinuteOffset / 60;
+      calendar.set(Calendar.HOUR_OF_DAY, hour);
+      int minute = mTimePicker.getSelectedItem() * mTimeMinuteOffset % 60;
+      calendar.set(Calendar.MINUTE, minute);
+    } else {
+      if (hasType(TYPE_HOUR)) {
+        calendar.set(Calendar.HOUR_OF_DAY, mHourPicker.getSelectedItem());
+      }
+      if (hasType(TYPE_MINUTE)) {
+        calendar.set(Calendar.MINUTE, getRealMinute(mMinutePicker.getSelectedPosition()));
+      }
     }
-    if (hasType(TYPE_DAY)) {
-      calendar.set(Calendar.DAY_OF_MONTH, mDayPicker.getSelectedItem());
-    }
-    if (hasType(TYPE_HOUR)) {
-      calendar.set(Calendar.HOUR_OF_DAY, mHourPicker.getSelectedItem());
-    }
-    if (hasType(TYPE_MINUTE)) {
-      calendar.set(Calendar.MINUTE, getRealMinute(mMinutePicker.getSelectedItem()));
-    }
-    // 选中时间取设置的时间，没有的，不做任何更改
-    //calendar.set(Calendar.SECOND, 0);
-    //calendar.set(Calendar.MILLISECOND, 0);
     return calendar.getTime();
   }
 
@@ -138,68 +202,103 @@ public class TimePicker extends BasePicker
   /**
    * createPickerView在init中执行，那么{@link #setInterceptor(Interceptor)}就必须在构造该方法之前执行才有效。采用Builder
    */
-  @SuppressWarnings("unchecked") private void initPicker() {
-    if (hasType(TYPE_YEAR)) {
-      mYearPicker = createPickerView(TYPE_YEAR, 1.2f);
-      mYearPicker.setOnSelectedListener(this);
-      mYearPicker.setFormatter(this);
+  @SuppressWarnings("unchecked")
+  private void initPicker() {
+    if (hasType(TYPE_MIXED_DATE)) {
+      mDatePicker = createPickerView(TYPE_MIXED_DATE, 2.5f);
+      mDatePicker.setOnSelectedListener(this);
+      mDatePicker.setFormatter(this);
+    } else {
+      if (hasType(TYPE_YEAR)) {
+        mYearPicker = createPickerView(TYPE_YEAR, 1.2f);
+        mYearPicker.setOnSelectedListener(this);
+        mYearPicker.setFormatter(this);
+      }
+      if (hasType(TYPE_MONTH)) {
+        mMonthPicker = createPickerView(TYPE_MONTH, 1);
+        mMonthPicker.setOnSelectedListener(this);
+        mMonthPicker.setFormatter(this);
+      }
+      if (hasType(TYPE_DAY)) {
+        mDayPicker = createPickerView(TYPE_DAY, 1);
+        mDayPicker.setOnSelectedListener(this);
+        mDayPicker.setFormatter(this);
+      }
     }
-    if (hasType(TYPE_MONTH)) {
-      mMonthPicker = createPickerView(TYPE_MONTH, 1);
-      mMonthPicker.setOnSelectedListener(this);
-      mMonthPicker.setFormatter(this);
-    }
-    if (hasType(TYPE_DAY)) {
-      mDayPicker = createPickerView(TYPE_DAY, 1);
-      mDayPicker.setOnSelectedListener(this);
-      mDayPicker.setFormatter(this);
-    }
-    if (hasType(TYPE_HOUR)) {
-      mHourPicker = createPickerView(TYPE_HOUR, 1);
-      mHourPicker.setOnSelectedListener(this);
-      mHourPicker.setFormatter(this);
-    }
-    if (hasType(TYPE_MINUTE)) {
-      mMinutePicker = createPickerView(TYPE_MINUTE, 1);
-      mMinutePicker.setFormatter(this);
+
+    if (hasType(TYPE_MIXED_TIME)) { // 包含Time
+      mTimePicker = createPickerView(TYPE_MIXED_TIME, 2);
+      mTimePicker.setFormatter(this);
+    } else {
+      if (hasType(TYPE_HOUR)) {
+        mHourPicker = createPickerView(TYPE_HOUR, 1);
+        mHourPicker.setOnSelectedListener(this);
+        mHourPicker.setFormatter(this);
+      }
+      if (hasType(TYPE_MINUTE)) {
+        mMinutePicker = createPickerView(TYPE_MINUTE, 1);
+        mMinutePicker.setFormatter(this);
+      }
     }
   }
 
   private void handleData() {
-    if (mSelectedDate == null
-      || mSelectedDate.getTimeInMillis() < mStartDate.getTimeInMillis()
-      || mSelectedDate.getTimeInMillis() > mEndDate.getTimeInMillis()) {
+    if (mSelectedDate == null || mSelectedDate.getTimeInMillis() < mStartDate.getTimeInMillis()) {
       updateSelectedDate(mStartDate.getTimeInMillis());
+    } else if (mSelectedDate.getTimeInMillis() > mEndDate.getTimeInMillis()) {
+      updateSelectedDate(mEndDate.getTimeInMillis());
     }
+
     if (mTimeMinuteOffset < 1) {
       mTimeMinuteOffset = 1;
     }
-    mStartYear = mStartDate.get(Calendar.YEAR);
-    mEndYear = mEndDate.get(Calendar.YEAR);
-    mStartMonth = mStartDate.get(Calendar.MONTH) + 1;
-    mEndMonth = mEndDate.get(Calendar.MONTH) + 1;
-    mStartDay = mStartDate.get(Calendar.DAY_OF_MONTH);
-    mEndDay = mEndDate.get(Calendar.DAY_OF_MONTH);
-    mStartHour = mStartDate.get(Calendar.HOUR_OF_DAY);
-    mEndHour = mEndDate.get(Calendar.HOUR_OF_DAY);
-    mStartMinute = getValidTimeMinutes(mStartDate.get(Calendar.MINUTE), true);
-    mEndMinute = getValidTimeMinutes(mEndDate.get(Calendar.MINUTE), false);
+    // 因为区间不能改变，所以这里只进行一次初始化操作
+    if (mDayOffset == -1 || mStartYear == 0) {
+      if (hasType(TYPE_MIXED_DATE)) {
+        mDayOffset = offsetStart(mEndDate);
+      } else {
+        mStartYear = mStartDate.get(Calendar.YEAR);
+        mEndYear = mEndDate.get(Calendar.YEAR);
+        mStartMonth = mStartDate.get(Calendar.MONTH) + 1;
+        mEndMonth = mEndDate.get(Calendar.MONTH) + 1;
+        mStartDay = mStartDate.get(Calendar.DAY_OF_MONTH);
+        mEndDay = mEndDate.get(Calendar.DAY_OF_MONTH);
+      }
+
+      mStartHour = mStartDate.get(Calendar.HOUR_OF_DAY);
+      mEndHour = mEndDate.get(Calendar.HOUR_OF_DAY);
+      mStartMinute = mStartDate.get(Calendar.MINUTE);
+      mEndMinute = mEndDate.get(Calendar.MINUTE);
+    }
   }
 
   private void reset() {
     handleData();
     // 处理数据，根据当前选中的时间及设置的日期范围处理数据
-    if (hasType(TYPE_YEAR)) {
-      if (mYearPicker.getAdapter() == null) { // 年不会发生变化，不需要重复设置
-        mYearPicker.setAdapter(
-          new NumericWheelAdapter(mStartDate.get(Calendar.YEAR), mEndDate.get(Calendar.YEAR)));
+    if (hasType(TYPE_MIXED_DATE)) {
+      if (mDatePicker.getAdapter() == null) {
+        mDatePicker.setAdapter(new NumericWheelAdapter(0, mDayOffset));
       }
-      mYearPicker
-        .setSelectedPosition(mSelectedDate.get(Calendar.YEAR) - mYearPicker.getAdapter().getItem(0),
-          false);
+      mDatePicker.setSelectedPosition(offsetStart(mSelectedDate), false);
+      if (hasType(TYPE_MIXED_TIME)) {
+        // 时间需要考虑起始日期对应的起始时间
+        resetTimeAdapter(true);
+      } else {
+        resetHourAdapter(true);
+      }
+    } else {
+      if (hasType(TYPE_YEAR)) {
+        if (mYearPicker.getAdapter() == null) { // 年不会发生变化，不需要重复设置
+          mYearPicker.setAdapter(
+            new NumericWheelAdapter(mStartDate.get(Calendar.YEAR), mEndDate.get(Calendar.YEAR)));
+        }
+        mYearPicker
+          .setSelectedPosition(
+            mSelectedDate.get(Calendar.YEAR) - mYearPicker.getAdapter().getItem(0),
+            false);
+      }
+      resetMonthAdapter(true);
     }
-
-    resetMonthAdapter(true);
   }
 
   private void resetMonthAdapter(boolean isInit) {
@@ -238,45 +337,105 @@ public class TimePicker extends BasePicker
       mDayPicker.setSelectedPosition(last - mDayPicker.getAdapter().getItem(0), false);
     }
 
-    // 日联动小时
-    resetHourAdapter(isInit);
+    if (hasType(TYPE_MIXED_TIME)) {
+      resetTimeAdapter(isInit);
+    } else {
+      // 日联动小时
+      resetHourAdapter(isInit);
+    }
+  }
+
+  private void resetTimeAdapter(boolean isInit) {
+    int start, end, last; // 这里start, end, last都是分钟数，而不是position
+    // 日期&时间
+    Calendar selectCalendar = Calendar.getInstance();
+    if (isInit) {
+      selectCalendar.setTimeInMillis(mSelectedDate.getTimeInMillis());
+      last = getValidTimeMinutes(mSelectedDate, true);
+    } else {
+      if (hasType(TYPE_MIXED_DATE)) {
+        selectCalendar.setTimeInMillis(getSelectedDate().getTime());
+      } else {
+        int year =
+          hasType(TYPE_YEAR) ? mYearPicker.getSelectedItem() : mSelectedDate.get(Calendar.YEAR);
+        int month = hasType(TYPE_MONTH) ? mMonthPicker.getSelectedItem()
+          : mSelectedDate.get(Calendar.MONTH) + 1;
+        int day =
+          hasType(TYPE_DAY) ? mDayPicker.getSelectedItem()
+            : mSelectedDate.get(Calendar.DAY_OF_MONTH);
+        selectCalendar.set(year, month, day);
+      }
+      last = mTimePicker.getSelectedItem() * mTimeMinuteOffset;
+    }
+
+    start = offset(selectCalendar, mStartDate) == 0 ? getValidTimeMinutes(mStartDate, true) : 0;
+    end = offset(selectCalendar, mEndDate) == 0 ? getValidTimeMinutes(mEndDate, false)
+      : getValidTimeMinutes(24 * 60 - mTimeMinuteOffset, false);
+
+    //  adapter 的item设置的是 有效分钟数/mTimeMinuteOffset
+    mTimePicker
+      .setAdapter(new NumericWheelAdapter(getValidTimesValue(start), getValidTimesValue(end)));
+    mTimePicker.setSelectedPosition(findPositionByValidTimes(last), false);
   }
 
   private void resetHourAdapter(boolean isInit) {
     if (hasType(TYPE_HOUR)) {
-      int year =
-        hasType(TYPE_YEAR) ? mYearPicker.getSelectedItem() : mSelectedDate.get(Calendar.YEAR);
-      int month = hasType(TYPE_MONTH) ? mMonthPicker.getSelectedItem()
-        : mSelectedDate.get(Calendar.MONTH) + 1;
-      int day =
-        hasType(TYPE_DAY) ? mDayPicker.getSelectedItem() : mSelectedDate.get(Calendar.DAY_OF_MONTH);
+      boolean isSameStartDay;
+      boolean isSameEndDay;
+      if (hasType(TYPE_MIXED_DATE)) {
+        isSameStartDay =
+          DateUtil.getDayOffset(getSelectedDate().getTime(), mStartDate.getTimeInMillis()) == 0;
+        isSameEndDay =
+          DateUtil.getDayOffset(getSelectedDate().getTime(), mEndDate.getTimeInMillis()) == 0;
+      } else if (hasType(TYPE_HOUR)) {
+        int year =
+          hasType(TYPE_YEAR) ? mYearPicker.getSelectedItem() : mSelectedDate.get(Calendar.YEAR);
+        int month = hasType(TYPE_MONTH) ? mMonthPicker.getSelectedItem()
+          : mSelectedDate.get(Calendar.MONTH) + 1;
+        int day =
+          hasType(TYPE_DAY) ? mDayPicker.getSelectedItem()
+            : mSelectedDate.get(Calendar.DAY_OF_MONTH);
+        isSameStartDay = year == mStartYear && month == mStartMonth && day == mStartDay;
+        isSameEndDay = year == mEndYear && month == mEndMonth && day == mEndDay;
+      } else {
+        resetMinuteAdapter(isInit);
+        return;
+      }
       int last = isInit ? mSelectedDate.get(Calendar.HOUR_OF_DAY) : mHourPicker.getSelectedItem();
-      int start = year == mStartYear && month == mStartMonth && day == mStartDay ? mStartHour : 0;
-      int end = year == mEndYear && month == mEndMonth && day == mEndDay ? mEndHour : 23;
+      int start = isSameStartDay ? mStartHour : 0;
+      int end = isSameEndDay ? mEndHour : 23;
       mHourPicker.setAdapter(new NumericWheelAdapter(start, end));
       mHourPicker.setSelectedPosition(last - mHourPicker.getAdapter().getItem(0), false);
     }
-
     resetMinuteAdapter(isInit);
   }
 
   private void resetMinuteAdapter(boolean isInit) {
     if (hasType(TYPE_MINUTE)) {
-      int year =
-        hasType(TYPE_YEAR) ? mYearPicker.getSelectedItem() : mSelectedDate.get(Calendar.YEAR);
-      int month = hasType(TYPE_MONTH) ? mMonthPicker.getSelectedItem()
-        : mSelectedDate.get(Calendar.MONTH) + 1;
-      int day =
-        hasType(TYPE_DAY) ? mDayPicker.getSelectedItem() : mSelectedDate.get(Calendar.DAY_OF_MONTH);
+      boolean isSameStartDay;
+      boolean isSameEndDay;
+
+      if (hasType(TYPE_MIXED_DATE)) {
+        isSameStartDay =
+          DateUtil.getDayOffset(getSelectedDate().getTime(), mStartDate.getTimeInMillis()) == 0;
+        isSameEndDay =
+          DateUtil.getDayOffset(getSelectedDate().getTime(), mEndDate.getTimeInMillis()) == 0;
+      } else {
+        int year =
+          hasType(TYPE_YEAR) ? mYearPicker.getSelectedItem() : mSelectedDate.get(Calendar.YEAR);
+        int month = hasType(TYPE_MONTH) ? mMonthPicker.getSelectedItem()
+          : mSelectedDate.get(Calendar.MONTH) + 1;
+        int day = hasType(TYPE_DAY) ? mDayPicker.getSelectedItem()
+          : mSelectedDate.get(Calendar.DAY_OF_MONTH);
+        isSameStartDay = year == mStartYear && month == mStartMonth && day == mStartDay;
+        isSameEndDay = year == mEndYear && month == mEndMonth && day == mEndDay;
+      }
       int hour = hasType(TYPE_HOUR) ? mHourPicker.getSelectedItem()
         : mSelectedDate.get(Calendar.HOUR_OF_DAY);
-      int last = isInit ? mStartMinute : getRealMinute(mMinutePicker.getSelectedItem());
-      int start =
-        year == mStartYear && month == mStartMonth && day == mStartDay && hour == mStartHour
-          ? mStartMinute : 0;
-      int end =
-        year == mEndYear && month == mEndMonth && day == mEndDay && hour == mEndHour ? mEndMinute
-          : 60 - mTimeMinuteOffset;
+      int last = isInit ? mSelectedDate.get(Calendar.MINUTE)
+        : getRealMinute(mMinutePicker.getSelectedPosition());
+      int start = isSameStartDay && hour == mStartHour ? mStartMinute : 0;
+      int end = isSameEndDay && hour == mEndHour ? mEndMinute : 60 - mTimeMinuteOffset;
       mMinutePicker
         .setAdapter(new NumericWheelAdapter(getValidMinuteValue(start), getValidMinuteValue(end)));
       mMinutePicker.setSelectedPosition(findPositionByValidTimes(last), false);
@@ -291,12 +450,32 @@ public class TimePicker extends BasePicker
   // 通过有效分钟数找到在adapter中的position
   private int findPositionByValidTimes(int validTimeMinutes) {
     int timesValue = getValidMinuteValue(validTimeMinutes);
-    return timesValue - mMinutePicker.getAdapter().getItem(0);
+    if (mMinutePicker != null) {
+
+      return timesValue - mMinutePicker.getAdapter().getItem(0);
+    }
+    return timesValue - mTimePicker.getAdapter().getItem(0);
   }
 
+  /**
+   * 获取对应position的真实分钟数，注意这里必须使用position
+   *
+   * @param position {@link BasePickerView#getSelectedPosition}
+   */
   // 获指定position的分钟item对应的真实的分钟数
   private int getRealMinute(int position) {
-    return position * mTimeMinuteOffset;
+    // bugfix:这个position是下标，要拿对应item的数值来计算
+    return mMinutePicker.getAdapter().getItem(position) * mTimeMinuteOffset;
+  }
+
+  // 获取指定position对应的有效的分钟数
+  private int getPositionValidMinutes(int position) {
+    return mTimePicker.getAdapter().getItem(position) * mTimeMinuteOffset;
+  }
+
+  // 获取有效分钟数对应的item的数值
+  private int getValidTimesValue(int validTimeMinutes) {
+    return validTimeMinutes / mTimeMinuteOffset;
   }
 
   /**
@@ -324,7 +503,56 @@ public class TimePicker extends BasePicker
     return validTimeMinutes;
   }
 
-  @Override public void onSelected(BasePickerView pickerView, int position) {
+  /**
+   * 获取时间的分钟数
+   */
+  private int getValidTimeMinutes(@Nullable Calendar calendar, boolean isStart) {
+    if (calendar == null) return 0;
+
+    int hour = calendar.get(Calendar.HOUR_OF_DAY);
+    int minute = calendar.get(Calendar.MINUTE);
+    int minutes = hour * 60 + minute;
+    return getValidTimeMinutes(minutes, isStart);
+  }
+
+  private int offset(Calendar calendar1, Calendar calendar2) {
+    return DateUtil.getDayOffset(calendar1.getTimeInMillis(), calendar2.getTimeInMillis());
+  }
+
+  /**
+   * 获取指定日期距离第0个的offset
+   */
+  private int offsetStart(Calendar calendar) {
+    return DateUtil.getDayOffset(calendar.getTimeInMillis(), mStartDate.getTimeInMillis());
+  }
+
+  // 只有日期是准确的
+  private Date getSelectedDate() {
+    return getPositionDate(mDatePicker.getSelectedPosition());
+  }
+
+  // 获取对应position的日期
+  private Date getPositionDate(int position) {
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTimeInMillis(mStartDate.getTimeInMillis());
+    calendar.add(Calendar.DAY_OF_YEAR, position);
+    return calendar.getTime();
+  }
+
+  // 获取对应position的时间
+  private Date getPositionTime(int position) {
+    Calendar calendar = Calendar.getInstance();
+    // 计算出position对应的hour & minute
+    int minutes = mTimePicker.getAdapter().getItem(position) * mTimeMinuteOffset;
+    int hour = minutes / 60;
+    int minute = minutes % 60;
+    calendar.set(Calendar.HOUR_OF_DAY, hour);
+    calendar.set(Calendar.MINUTE, minute);
+    return calendar.getTime();
+  }
+
+  @Override
+  public void onSelected(BasePickerView pickerView, int position) {
     // 联动，年份、月份是固定的，使用日历，获取指定指定某年某月的日期
     switch ((int) pickerView.getTag()) {
       case TYPE_YEAR:
@@ -333,8 +561,13 @@ public class TimePicker extends BasePicker
       case TYPE_MONTH:
         resetDayAdapter(false);
         break;
+      case TYPE_MIXED_DATE:
       case TYPE_DAY:
-        resetHourAdapter(false);
+        if (hasType(TYPE_MIXED_TIME)) {
+          resetTimeAdapter(false);
+        } else {
+          resetHourAdapter(false);
+        }
         break;
       case TYPE_HOUR:
         resetMinuteAdapter(false);
@@ -342,25 +575,38 @@ public class TimePicker extends BasePicker
     }
   }
 
-  @Override protected void onConfirm() {
+  @Override
+  protected void onConfirm() {
     if (mOnTimeSelectListener != null) {
-      Date date = getSelectedDate();
+      Date date = getSelectedDates();
       if (date != null) mOnTimeSelectListener.onTimeSelect(this, date);
     }
   }
 
+  /**
+   * @param position 这个是adapter的position，但是起始时间如果不从0开始就不对了
+   */
   @Override
   public CharSequence format(BasePickerView pickerView, int position, CharSequence charSequence) {
     if (mFormatter == null) return charSequence;
     int type = (int) pickerView.getTag();
-    int value = Integer.parseInt(charSequence.toString());
-    int num = type == TYPE_MINUTE ? getRealMinute(value) : value;
-    return mFormatter.format(this, type, position, num);
+    long value;
+    if (type == TYPE_MIXED_DATE) {
+      value = getPositionDate(position).getTime();
+    } else if (type == TYPE_MIXED_TIME) {
+      value = getPositionTime(position).getTime();
+    } else if (type == TYPE_MINUTE) {
+      value = getRealMinute(position);
+    } else {
+      value = Integer.parseInt(charSequence.toString());
+    }
+    return mFormatter.format(this, type, position, value);
   }
 
   public static class Builder {
     private Context mContext;
     private int mType;
+    // 都应该设置起止时间的，哪怕是只有时间格式，因为真实回调的是时间戳
     private long mStartDate = 0; // 默认起始为1970/1/1 8:0:0
     private long mEndDate = 4133865600000L; // 默认截止为2100/12/31 0:0:0
     private long mSelectedDate = -1;
@@ -449,13 +695,14 @@ public class TimePicker extends BasePicker
     }
 
     public TimePicker create() {
-      TimePicker picker = new TimePicker(mContext, mType, mOnTimeSelectListener);
+      TimePicker
+        picker = new TimePicker(mContext, mType, mOnTimeSelectListener);
       // 不支持重复设置的，都在builder中控制，一次性行为
       picker.setInterceptor(mInterceptor);
-      picker.setRangDate(mStartDate, mEndDate);
       picker.mTimeMinuteOffset = mTimeMinuteOffset;
       picker.mContainsStarDate = mContainsStarDate;
       picker.mContainsEndDate = mContainsEndDate;
+      picker.setRangDate(mStartDate, mEndDate);
       if (mFormatter == null) {
         mFormatter = new DefaultFormatter();
       }
@@ -471,19 +718,25 @@ public class TimePicker extends BasePicker
   }
 
   public static class DefaultFormatter implements Formatter {
-    @Override public CharSequence format(TimePicker picker, int type, int position, int num) {
+    @Override
+    public CharSequence format(TimePicker picker, int type, int position, long value) {
       if (type == TimePicker.TYPE_YEAR) {
-        return num + "年";
+        return value + "年";
       } else if (type == TimePicker.TYPE_MONTH) {
-        return String.format("%02d月", num);
+        return String.format("%02d月", value);
       } else if (type == TimePicker.TYPE_DAY) {
-        return String.format("%02d日", num);
+        return String.format("%02d日", value);
       } else if (type == TimePicker.TYPE_HOUR) {
-        return String.format("%2d时", num);
+        return String.format("%2d时", value);
       } else if (type == TimePicker.TYPE_MINUTE) {
-        return String.format("%2d分", num);
+        return String.format("%2d分", value);
+      } else if (type == TimePicker.TYPE_MIXED_DATE) {
+        // 如果是TYPE_MIXED_,则value表示时间戳
+        return DEFAULT_DATE_FORMAT.format(new Date(value));
+      } else if (type == TimePicker.TYPE_MIXED_TIME) {
+        return DEFAULT_TIME_FORMAT.format(new Date(value));
       }
-      return String.valueOf(num);
+      return String.valueOf(value);
     }
   }
 
@@ -494,9 +747,10 @@ public class TimePicker extends BasePicker
      * @param picker picker
      * @param type 并不是模式，而是当前item所属的type，如年，时
      * @param position position
-     * @param num position item显示的数字
+     * @param value position item对应的value，如果是TYPE_MIXED_DATE表示日期时间戳，否则表示显示的数字
      */
-    CharSequence format(TimePicker picker, int type, int position, int num);
+    CharSequence format(TimePicker picker, int type, int position,
+      long value);
   }
 
   public interface OnTimeSelectListener {

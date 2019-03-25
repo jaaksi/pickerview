@@ -3,6 +3,7 @@ package org.jaaksi.pickerview.demo;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -22,68 +23,92 @@ import org.jaaksi.pickerview.widget.PickerView;
 public class TimePickerFragment extends BaseFragment
   implements View.OnClickListener, TimePicker.OnTimeSelectListener {
   private Button mBtnShow;
-  private CheckBox mCbYear, mCbMonth, mCbDay, mCbHour, mCbMinute;
+  private CheckBox mCbDate, mCbYear, mCbMonth, mCbTime, mCbDay, mCbHour, mCbMinute;
   private TimePicker mTimePicker;
   public static final DateFormat sSimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
   private int mCurrYear;
   private long mLoveTimes;
 
-  @Override protected int getLayoutId() {
+  @Override
+  protected int getLayoutId() {
     return R.layout.fragment_timepicker;
   }
 
-  @Override protected void initView(View view) {
+  @Override
+  protected void initView(View view) {
     Calendar calendar = Calendar.getInstance();
     mCurrYear = calendar.get(Calendar.YEAR);
     mBtnShow = view.findViewById(R.id.btn_show);
     mBtnShow.setOnClickListener(this);
     view.findViewById(R.id.btn_choose_type).setOnClickListener(this);
+    mCbDate = view.findViewById(R.id.cb_date);
     mCbYear = view.findViewById(R.id.cb_year);
     mCbMonth = view.findViewById(R.id.cb_month);
     mCbDay = view.findViewById(R.id.cb_day);
+    mCbTime = view.findViewById(R.id.cb_time);
     mCbHour = view.findViewById(R.id.cb_hour);
     mCbMinute = view.findViewById(R.id.cb_minute);
     Calendar love = Calendar.getInstance();
     love.set(love.get(Calendar.YEAR), 4, 20, 13, 14);
-    mLoveTimes = love.getTimeInMillis();
+    mLoveTimes = love.getTimeInMillis(); // 2018/5/20 13:14:36
   }
 
-  @Override public void onTimeSelect(TimePicker picker, Date date) {
+  @Override
+  public void onTimeSelect(TimePicker picker, Date date) {
     mBtnShow.setText(sSimpleDateFormat.format(date));
   }
 
   private void reset() {
     int type = 0;
     // 设置type
-    if (mCbYear.isChecked()) type = type | TimePicker.TYPE_YEAR;
-    if (mCbMonth.isChecked()) type = type | TimePicker.TYPE_MONTH;
-    if (mCbDay.isChecked()) type = type | TimePicker.TYPE_DAY;
-    if (mCbHour.isChecked()) type = type | TimePicker.TYPE_HOUR;
-    if (mCbMinute.isChecked()) type = type | TimePicker.TYPE_MINUTE;
-    // 2018/5/15 13:14:00 - 2030/1/2 13:51:0
+    if (mCbDate.isChecked()) {
+      type = type | TimePicker.TYPE_MIXED_DATE;
+      mCbYear.setChecked(false);
+      mCbMonth.setChecked(false);
+      mCbDay.setChecked(false);
+    } else {
+      if (mCbYear.isChecked()) type = type | TimePicker.TYPE_YEAR;
+      if (mCbMonth.isChecked()) type = type | TimePicker.TYPE_MONTH;
+      if (mCbDay.isChecked()) type = type | TimePicker.TYPE_DAY;
+    }
+
+    if (mCbTime.isChecked()) {
+      type = type | TimePicker.TYPE_MIXED_TIME;
+      mCbHour.setChecked(false);
+      mCbMinute.setChecked(false);
+    } else {
+      if (mCbHour.isChecked()) type = type | TimePicker.TYPE_HOUR;
+      if (mCbMinute.isChecked()) type = type | TimePicker.TYPE_MINUTE;
+    }
+
+    // 2018/10/24 14:16:0 - 2030/1/2 13:51:0
     mTimePicker = new TimePicker.Builder(mActivity, type, this)
       // 设置时间区间
-      .setRangDate(1526361240000L, 1893563460000L)
-      .setTimeMinuteOffset(10)
+      .setRangDate(1540361760000L, 1893563460000L)
+      //.setContainsStarDate(true)
+      .setTimeMinuteOffset(20)
+      //.setSelectedDate(1526449500000L).setTimeMinuteOffset(10)
       // 设置选中时间
       //.setSelectedDate()
       // 设置pickerview样式
       .setInterceptor(new BasePicker.Interceptor() {
-        @Override public void intercept(PickerView pickerView) {
+        @Override
+        public void intercept(PickerView pickerView, LinearLayout.LayoutParams params) {
           pickerView.setVisibleItemCount(3);
           // 将年月设置为循环的
           int type = (int) pickerView.getTag();
-          if (type == TimePicker.TYPE_YEAR || type == TimePicker.TYPE_MONTH) {
-            pickerView.setIsCirculation(true);
-          }
+          //if (type == TimePicker.TYPE_YEAR || type == TimePicker.TYPE_MONTH) {
+          //  pickerView.setIsCirculation(true);
+          //}
         }
       })
       // 设置 Formatter
       .setFormatter(new TimePicker.DefaultFormatter() {
         // 自定义Formatter显示去年，今年，明年
-        @Override public CharSequence format(TimePicker picker, int type, int position, int num) {
+        @Override
+        public CharSequence format(TimePicker picker, int type, int position, long num) {
           if (type == TimePicker.TYPE_YEAR) {
-            int offset = num - mCurrYear;
+            long offset = num - mCurrYear;
             if (offset == -1) return "去年";
             if (offset == 0) return "今年";
             if (offset == 1) return "明年";
@@ -96,10 +121,11 @@ public class TimePickerFragment extends BaseFragment
         }
       }).create();
     // 2019/2/5 14:57:23
-    //mTimePicker.setSelectedDate(1549349843000L);
+    //mTimePicker.setSelectedDate(1526449500000L);
   }
 
-  @Override public void onClick(View v) {
+  @Override
+  public void onClick(View v) {
     switch (v.getId()) {
       case R.id.btn_choose_type:
         reset();
@@ -116,7 +142,7 @@ public class TimePickerFragment extends BaseFragment
         } catch (ParseException e) {
           // 如果没有设置选中时间，则取起始时间
           e.printStackTrace();
-          mTimePicker.setSelectedDate(mLoveTimes);
+          //mTimePicker.setSelectedDate(mLoveTimes);
         }
         mTimePicker.show();
         break;

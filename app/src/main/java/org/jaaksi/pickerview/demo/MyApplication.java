@@ -18,24 +18,27 @@ import org.jaaksi.pickerview.widget.PickerView;
 
 public class MyApplication extends Application {
 
-  @Override public void onCreate() {
+  @Override
+  public void onCreate() {
     super.onCreate();
     // 建议在application中初始化picker 默认属性实现全局设置
-    //initDefaultPicker();
+    initDefaultPicker();
   }
 
   private void initDefaultPicker() {
     // 利用修改静态默认属性值，快速定制一套满足自己app样式需求的Picker.
     // BasePickerView
-    PickerView.sDefaultVisibleItemCount = 3;
+    PickerView.sDefaultVisibleItemCount = 5;
     PickerView.sDefaultItemSize = 50;
-    PickerView.sDefaultIsCirculation = true;
+    PickerView.sDefaultIsCirculation = false;
+    //PickerView.sDefaultDrawIndicator = false;
 
     // PickerView
     PickerView.sOutTextSize = 18;
     PickerView.sCenterTextSize = 18;
     PickerView.sCenterColor = Color.RED;
     PickerView.sOutColor = Color.GRAY;
+    //PickerView.sShadowColors = null;
 
     // BasePicker
     int padding = Util.dip2px(this, 20);
@@ -44,7 +47,8 @@ public class MyApplication extends Application {
     BasePicker.sDefaultCanceledOnTouchOutside = false;
     // 自定义 TopBar
     BasePicker.sDefaultTopBarCreator = new BasePicker.IDefaultTopBarCreator() {
-      @Override public ITopBar createDefaultTopBar(LinearLayout parent) {
+      @Override
+      public ITopBar createDefaultTopBar(LinearLayout parent) {
         return new CustomTopBar(parent);
       }
     };

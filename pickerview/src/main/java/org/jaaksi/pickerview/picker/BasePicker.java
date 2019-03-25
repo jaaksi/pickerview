@@ -160,7 +160,7 @@ public abstract class BasePicker implements View.OnClickListener {
     mPickerContainer.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
     if (sDefaultPaddingRect != null) {
       setPadding(sDefaultPaddingRect.left, sDefaultPaddingRect.top, sDefaultPaddingRect.right,
-          sDefaultPaddingRect.bottom);
+        sDefaultPaddingRect.bottom);
     }
     if (sDefaultPickerBackgroundColor != Color.TRANSPARENT) {
       setPickerBackgroundColor(sDefaultPickerBackgroundColor);
@@ -169,14 +169,15 @@ public abstract class BasePicker implements View.OnClickListener {
 
     mPickerDialog = new Dialog(mContext, R.style.dialog_pickerview) {
       // 要在onCreate里设置，否则如果style设置了windowIsFloating=true，会变成-2，-2
-      @Override protected void onCreate(Bundle savedInstanceState) {
+      @Override
+      protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Window window = mPickerDialog.getWindow();
         if (window != null) {
           window.setWindowAnimations(R.style.picker_dialog_anim);
           // 默认是match_parent的
           window.setLayout(WindowManager.LayoutParams.MATCH_PARENT,
-              WindowManager.LayoutParams.WRAP_CONTENT);
+            WindowManager.LayoutParams.WRAP_CONTENT);
           window.setGravity(Gravity.BOTTOM);
         }
       }
@@ -221,12 +222,13 @@ public abstract class BasePicker implements View.OnClickListener {
     pickerView.setTag(tag);
     // 这里是竖直方向的，如果要设置横向的，则自己再设置LayoutParams
     LinearLayout.LayoutParams params =
-        new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT);
+      new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT);
     params.weight = weight;
-    pickerView.setLayoutParams(params);
+    // do it
     if (mInterceptor != null) {
-      mInterceptor.intercept(pickerView);
+      mInterceptor.intercept(pickerView, params);
     }
+    pickerView.setLayoutParams(params);
     mPickerContainer.addView(pickerView);
     addPicker(pickerView);
     return pickerView;
@@ -238,7 +240,8 @@ public abstract class BasePicker implements View.OnClickListener {
    * @param tag tag
    * @return 对应tag的pickerview，找不到返回null
    */
-  @Nullable public PickerView findPickerViewByTag(@NonNull Object tag) {
+  @Nullable
+  public PickerView findPickerViewByTag(@NonNull Object tag) {
     for (PickerView pickerView : mPickerViews) {
       if (checkIsSamePickerView(tag, pickerView.getTag())) return pickerView;
     }
@@ -276,7 +279,7 @@ public abstract class BasePicker implements View.OnClickListener {
     // or a framework id
     if ((key >>> 24) < 2) {
       throw new IllegalArgumentException(
-          "The key must be an application-specific " + "resource id.");
+        "The key must be an application-specific " + "resource id.");
     }
 
     setKeyedTag(key, tag);
@@ -308,7 +311,9 @@ public abstract class BasePicker implements View.OnClickListener {
     return mPickerDialog.findViewById(id);
   }
 
-  @CallSuper @Override public void onClick(View v) {
+  @CallSuper
+  @Override
+  public void onClick(View v) {
     if (isScrolling()) return;//  滑动未停止不响应点击事件
     int id = v.getId();
     if (id == R.id.btn_confirm) {
@@ -349,11 +354,11 @@ public abstract class BasePicker implements View.OnClickListener {
    */
   public interface Interceptor {
     /**
-     * 拦截
+     * 拦截pickerview的创建，我们可以自定义
      *
-     * @param pickerView pickerView
+     * @param pickerView 增加layoutparams参数，方便设置weight
      */
-    void intercept(PickerView pickerView);
+    void intercept(PickerView pickerView, LinearLayout.LayoutParams params);
   }
 
   public interface OnPickerChooseListener {

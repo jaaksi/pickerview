@@ -55,15 +55,18 @@ public class DefaultTopBar implements ITopBar {
     return mDivider;
   }
 
-  @Override public View getTopBarView() {
+  @Override
+  public View getTopBarView() {
     return mTopBar;
   }
 
-  @Override public TextView getBtnCancel() {
+  @Override
+  public TextView getBtnCancel() {
     return mBtnCancel;
   }
 
-  @Override public TextView getBtnConfirm() {
+  @Override
+  public TextView getBtnConfirm() {
     return mBtnConfirm;
   }
 
@@ -72,7 +75,8 @@ public class DefaultTopBar implements ITopBar {
    *
    * @return title
    */
-  @Override public TextView getTitleView() {
+  @Override
+  public TextView getTitleView() {
     return mTvTitle;
   }
 }

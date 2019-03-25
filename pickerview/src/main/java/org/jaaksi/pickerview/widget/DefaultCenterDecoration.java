@@ -102,9 +102,9 @@ public class DefaultCenterDecoration implements BasePickerView.CenterDecoration 
     if (mMarginRect == null) {
       mMarginRect = new Rect();
     }
-    boolean isVertical = pickerView.isVertical();
+    boolean isHorizontal = pickerView.isHorizontal();
     if (mDrawable != null) {
-      if (isVertical) {
+      if (!isHorizontal) {
         mRect.set(left + mMarginRect.left,
           top + mMarginRect.top + (int) (mPaint.getStrokeWidth() / 2), right - mMarginRect.right,
           bottom - mMarginRect.bottom - (int) (mPaint.getStrokeWidth() / 2));
@@ -119,7 +119,7 @@ public class DefaultCenterDecoration implements BasePickerView.CenterDecoration 
 
     if (mPaint.getColor() == Color.TRANSPARENT) return;
 
-    if (isVertical) {
+    if (!isHorizontal) {
       canvas.drawLine(left + mMarginRect.left, top + mMarginRect.top, right - mMarginRect.right,
         top + mMarginRect.top, mPaint);
       canvas.drawLine(left + mMarginRect.left, bottom - mMarginRect.bottom,

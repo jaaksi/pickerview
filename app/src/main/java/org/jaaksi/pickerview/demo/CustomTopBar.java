@@ -56,19 +56,23 @@ public class CustomTopBar implements ITopBar {
     return mDivider;
   }
 
-  @Override public View getTopBarView() {
+  @Override
+  public View getTopBarView() {
     return mTopBar;
   }
 
-  @Override public ImageView getBtnCancel() {
+  @Override
+  public ImageView getBtnCancel() {
     return mBtnCancel;
   }
 
-  @Override public TextView getBtnConfirm() {
+  @Override
+  public TextView getBtnConfirm() {
     return mBtnConfirm;
   }
 
-  @Override public TextView getTitleView() {
+  @Override
+  public TextView getTitleView() {
     return mTvTitle;
   }
 }

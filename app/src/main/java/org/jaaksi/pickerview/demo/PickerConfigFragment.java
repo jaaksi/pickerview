@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,13 +28,16 @@ public class PickerConfigFragment extends BaseFragment
   private OptionPicker mPicker;
   private Button mBtnShow;
   // 2-3-县4
-  private String provinceId = "200", cityId = "230", countyId = "234";
+  //private String provinceId = "200", cityId = "230", countyId = "234";
+  private String provinceId = "200", cityId = "210", countyId = null;
 
-  @Override protected int getLayoutId() {
+  @Override
+  protected int getLayoutId() {
     return R.layout.fragment_picker_configs;
   }
 
-  @Override protected void initView(View view) {
+  @Override
+  protected void initView(View view) {
     mBtnShow = view.findViewById(R.id.btn_show);
     mBtnShow.setOnClickListener(this);
 
@@ -47,7 +51,8 @@ public class PickerConfigFragment extends BaseFragment
 
     mPicker =
       new OptionPicker.Builder(mActivity, 3, this).setInterceptor(new BasePicker.Interceptor() {
-        @Override public void intercept(PickerView pickerView) {
+        @Override
+        public void intercept(PickerView pickerView, LinearLayout.LayoutParams params) {
           int level = (int) pickerView.getTag();
           pickerView.setVisibleItemCount(3);
           // setInterceptor 可以根据level区分设置pickerview属性
@@ -73,20 +78,22 @@ public class PickerConfigFragment extends BaseFragment
 
     // 拦截缺点按钮的事件
     mPicker.setOnPickerChooseListener(new BasePicker.OnPickerChooseListener() {
-      @Override public boolean onConfirm() {
+      @Override
+      public boolean onConfirm() {
         Toast.makeText(mActivity, "拦截确定按钮", 1).show();
         //mPicker.onCancel();
         // 返回false表示拦截
         return false;
       }
 
-      @Override public void onCancel() {
+      @Override
+      public void onCancel() {
         Toast.makeText(mActivity, "取消", 1).show();
       }
     });
 
     List<Province> data = createData();
-    mPicker.setDataWithValues(data);
+    mPicker.setData(data);
   }
 
   private List<Province> createData() {
@@ -101,7 +108,8 @@ public class PickerConfigFragment extends BaseFragment
         city.id = province.id + 10 * j;
         city.name = i + "-市" + j;
         city.counties = new ArrayList<>();
-        for (int k = 0; k < (i == 0 && j == 0 ? 0 : 10); k++) {
+        boolean hasCounties = (i == 0 && j == 0) || (i == 2 && j == 1);
+        for (int k = 0; k < (hasCounties ? 0 : 10); k++) {
           County county = new County();
           county.id = city.id + k;
           county.name = i + "-" + j + "-县" + k;
@@ -114,12 +122,14 @@ public class PickerConfigFragment extends BaseFragment
     return list;
   }
 
-  @Override public void onClick(View v) {
+  @Override
+  public void onClick(View v) {
     mPicker.setSelectedWithValues(provinceId, cityId, countyId);
     mPicker.show();
   }
 
-  @Override public void onOptionSelect(OptionPicker picker, int[] selectedPosition,
+  @Override
+  public void onOptionSelect(OptionPicker picker, int[] selectedPosition,
     OptionDataSet[] selectedOptions) {
     System.out.println("selectedPosition = " + Arrays.toString(selectedPosition));
     String text;

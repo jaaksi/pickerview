@@ -28,7 +28,7 @@
     android:layout_height="wrap_content"
     android:lines="2"
     android:onClick="onClick"
-    android:text="MixedTimePicker"
+    android:text="11月25日 星期一 13:14"
     android:textAllCaps="false" />
 
   <Button

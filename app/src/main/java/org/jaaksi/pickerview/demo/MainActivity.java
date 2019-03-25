@@ -11,7 +11,8 @@ import android.view.View;
 
 public class MainActivity extends BaseActivity {
 
-  @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
+  @Override
+  protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
   }
@@ -22,7 +23,7 @@ public class MainActivity extends BaseActivity {
         openFragment(new TimePickerFragment());
         break;
       case R.id.btn_mixedtimepicker:
-        openFragment(new MixedTimePickerFragment());
+        openFragment(new MixedTimeFormatFragment());
         break;
       case R.id.btn_optionpicker:
         openFragment(new OptionPickerFragment());
