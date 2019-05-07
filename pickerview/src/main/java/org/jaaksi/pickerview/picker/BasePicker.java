@@ -189,8 +189,26 @@ public abstract class BasePicker implements View.OnClickListener {
 
   private void addTopBar() {
     mRootLayout.addView(mITopBar.getTopBarView(), 0);
-    mITopBar.getBtnCancel().setOnClickListener(this);
-    mITopBar.getBtnConfirm().setOnClickListener(this);
+    View.OnClickListener listener = new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        if (isScrolling()) return;//  滑动未停止不响应点击事件
+        if (v == mITopBar.getBtnConfirm()) {
+          // 给用户拦截
+          if (mOnPickerChooseListener == null || mOnPickerChooseListener.onConfirm()) {
+            onConfirm();
+            mPickerDialog.dismiss();
+          }
+        } else if (v == mITopBar.getBtnCancel()) {
+          onCancel();
+          if (mOnPickerChooseListener != null) {
+            mOnPickerChooseListener.onCancel();
+          }
+        }
+      }
+    };
+    mITopBar.getBtnCancel().setOnClickListener(listener);
+    mITopBar.getBtnConfirm().setOnClickListener(listener);
   }
 
   /**
