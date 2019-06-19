@@ -362,6 +362,10 @@ public class MyApplication extends Application {
 ```
 
 ## Change Log
+  > v2.0.1(2019-04-23)
+  - release v2.0.1
+  - 修复OptionDelegate遍历不存在value错误引起的bug
+
   > v2.0.0(2019-03-25)
   - release v2.0.0
   - 合并MixedTimePicker和TimePicker，更强大
@@ -379,7 +383,7 @@ public class MyApplication extends Application {
 
 ## Gradle
 ```java
-    compile 'org.jaaksi:pickerview:2.0.0'
+    compile 'org.jaaksi:pickerview:2.0.1'
 ```
 
 ## Thanks

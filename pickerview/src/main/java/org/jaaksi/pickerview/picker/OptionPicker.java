@@ -16,7 +16,8 @@ import org.jaaksi.pickerview.widget.PickerView;
  * 与https://github.com/Bigkoo/Android-PickerView对比
  * 1.支持设置层级
  * 2.构造数据源简单，只需要实现OptionDataSet接口
- * 3.支持通过选中的value设置选中项，内部处理选中项逻辑，避免用户麻烦的遍历处理
+ * 3.支持联动及不联动
+ * 4.支持通过选中的value设置选中项，内部处理选中项逻辑，避免用户麻烦的遍历处理
  */
 
 public class OptionPicker extends BasePicker

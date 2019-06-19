@@ -258,14 +258,14 @@ public abstract class BasePicker implements View.OnClickListener {
   /**
    * 是否滚动未停止
    */
-  public boolean isScrolling() {
+  public boolean canSelected() {
     for (int i = mPickerViews.size() - 1; i >= 0; i--) {
       PickerView pickerView = mPickerViews.get(i);
-      if (pickerView.isScrolling()) {
-        return true;
+      if (!pickerView.canSelected()) {
+        return false;
       }
     }
-    return false;
+    return true;
   }
 
   /**
@@ -314,15 +314,14 @@ public abstract class BasePicker implements View.OnClickListener {
   @CallSuper
   @Override
   public void onClick(View v) {
-    if (isScrolling()) return;//  滑动未停止不响应点击事件
-    int id = v.getId();
-    if (id == R.id.btn_confirm) {
+    if (!canSelected()) return;//  滑动未停止不响应点击事件
+    if (v == mITopBar.getBtnConfirm()) {
       // 给用户拦截
       if (mOnPickerChooseListener == null || mOnPickerChooseListener.onConfirm()) {
         onConfirm();
         mPickerDialog.dismiss();
       }
-    } else if (id == R.id.btn_cancel) {
+    } else if (v == mITopBar.getBtnCancel()) {
       onCancel();
       if (mOnPickerChooseListener != null) {
         mOnPickerChooseListener.onCancel();

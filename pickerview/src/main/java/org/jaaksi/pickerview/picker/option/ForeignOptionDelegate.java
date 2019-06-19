@@ -34,10 +34,8 @@ public class ForeignOptionDelegate implements IOptionDelegate {
     for (int i = 0; i < mDelegate.getHierarchy(); i++) {
       if (mOptions == null || mOptions.length == 0) { // 数据源无效
         mDelegate.getSelectedPosition()[i] = -1;
-      } else if (values.length <= i || values[0] == null) { // 选中默认项0...
+      } else if (values.length <= i || values[i] == null) { // 选中默认项0...
         mDelegate.getSelectedPosition()[i] = 0;
-      } else if (values[i] == null) {
-        mDelegate.getSelectedPosition()[i] = -1;
       } else {
         List<? extends OptionDataSet> options = mOptions[i];
         for (int j = 0; j <= options.size(); j++) {

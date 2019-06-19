@@ -82,6 +82,7 @@ public abstract class BasePickerView<T> extends View {
   private int mLastScrollX = 0; // Scroller的坐标x
 
   private boolean mDisallowTouch = false; // 不允许触摸
+  private boolean isTouching = false; //手指按下
   private int mSelectedOnTouch;
 
   private Paint mPaint;
@@ -334,7 +335,7 @@ public abstract class BasePickerView<T> extends View {
 
     switch (event.getActionMasked()) {
       case MotionEvent.ACTION_MOVE:
-
+        isTouching = true;
         if (mIsHorizontal) {
           if (Math.abs(event.getX() - mLastMoveX) < 0.1f) {
             return true;
@@ -352,6 +353,7 @@ public abstract class BasePickerView<T> extends View {
         invalidate();
         break;
       case MotionEvent.ACTION_UP:
+        isTouching = false;
         mLastMoveY = event.getY();
         mLastMoveX = event.getX();
         if (mMoveLength == 0) {
@@ -362,13 +364,15 @@ public abstract class BasePickerView<T> extends View {
           moveToCenter(); // 滚动到中间位置
         }
         break;
+      case MotionEvent.ACTION_CANCEL:
+        isTouching = false;
+        break;
     }
     return true;
   }
 
   /**
-   * @param curr
-   * @param end
+   *
    */
   private void computeScroll(int curr, int end, float rate) {
     if (rate < 1) { // 正在滚动
@@ -750,6 +754,9 @@ public abstract class BasePickerView<T> extends View {
           fling(mMoveLength, velocityY);
         }
       }
+      if (e2.getAction() == MotionEvent.ACTION_UP) {
+        isTouching = false;
+      }
       return true;
     }
 
@@ -988,6 +995,13 @@ public abstract class BasePickerView<T> extends View {
    */
   public int getCenterPosition() {
     return mCenterPosition;
+  }
+
+  /**
+   * @return 是否可选择的状态。非滑动及触摸状态
+   */
+  public boolean canSelected() {
+    return !isTouching && !isScrolling();
   }
 
   public boolean isScrolling() {

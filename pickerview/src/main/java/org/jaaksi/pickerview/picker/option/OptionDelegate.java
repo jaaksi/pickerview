@@ -36,7 +36,7 @@ public class OptionDelegate implements IOptionDelegate {
   /**
    * 根据选中的values初始化选中的position
    *
-   * @param values 选中数据的value{@link OptionDataSet#getValue()}，如果values[0]==null，则进行默认选中，其他为null认为没有该列
+   * @param values 选中数据的value{@link OptionDataSet#getValue()}，如果values[i]==null，如果该列有数据，则进行默认选中，否则认为没有该列
    */
   @SuppressWarnings("unchecked") public void setSelectedWithValues(String... values) {
     List<? extends OptionDataSet> temp = mOptions;
@@ -48,10 +48,8 @@ public class OptionDelegate implements IOptionDelegate {
       }
       if (temp == null || temp.size() == 0) { // 数据源无效
         mDelegate.getSelectedPosition()[i] = -1;
-      } else if (values.length <= i || values[0] == null) { // 选中默认项0...
+      } else if (values.length <= i || values[i] == null) { // 选中默认项0...
         mDelegate.getSelectedPosition()[i] = 0;
-      } else if (values[i] == null) {
-        mDelegate.getSelectedPosition()[i] = -1;
       } else { // 遍历找到选中的下标，如果没有找到，则将下标置为0
         for (int j = 0; j < temp.size(); j++) {
           OptionDataSet dataSet = temp.get(j);
