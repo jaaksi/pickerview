@@ -2,6 +2,7 @@ package org.jaaksi.pickerview.demo;
 
 import android.app.Dialog;
 import android.graphics.Color;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -13,6 +14,7 @@ import org.jaaksi.pickerview.dataset.OptionDataSet;
 import org.jaaksi.pickerview.demo.model.City;
 import org.jaaksi.pickerview.demo.model.County;
 import org.jaaksi.pickerview.demo.model.Province;
+import org.jaaksi.pickerview.dialog.OnPickerChooseListener;
 import org.jaaksi.pickerview.picker.BasePicker;
 import org.jaaksi.pickerview.picker.OptionPicker;
 import org.jaaksi.pickerview.util.Util;
@@ -50,34 +52,34 @@ public class PickerConfigFragment extends BaseFragment
         Util.dip2px(mActivity, -3));
 
     mPicker =
-      new OptionPicker.Builder(mActivity, 3, this).setInterceptor(new BasePicker.Interceptor() {
-        @Override
-        public void intercept(PickerView pickerView, LinearLayout.LayoutParams params) {
-          int level = (int) pickerView.getTag();
-          pickerView.setVisibleItemCount(3);
-          // setInterceptor 可以根据level区分设置pickerview属性
-          pickerView.setCenterDecoration(decoration);
-          pickerView.setTextSize(15, 20);
-        }
-      }).create();
+      new OptionPicker.Builder(mActivity, 3, this)
+        .dialog(new PickerDialog())
+        .setInterceptor(new BasePicker.Interceptor() {
+          @Override
+          public void intercept(PickerView pickerView, LinearLayout.LayoutParams params) {
+            int level = (int) pickerView.getTag();
+            pickerView.setVisibleItemCount(3);
+            // setInterceptor 可以根据level区分设置pickerview属性
+            pickerView.setCenterDecoration(decoration);
+            pickerView.setTextSize(15, 20);
+          }
+        }).create();
     // 设置padding
     int padding = Util.dip2px(mActivity, 20);
     mPicker.setPadding(0, padding, 0, padding);
     //mPicker.setPickerBackgroundColor(Color.parseColor("#eeeeee"));
 
-    // 设置弹窗
-    Dialog dialog = mPicker.getPickerDialog();
-    dialog.setCanceledOnTouchOutside(true);
-    //dialog.getWindow().setGravity(Gravity.BOTTOM);
+    PickerDialog pickerDialog = (PickerDialog) mPicker.dialog();
+    Dialog dialog = pickerDialog.getDialog();
 
-    // 自定义topbar
-    CustomTopBar topBar = new CustomTopBar(mPicker.getRootLayout());
-    topBar.getTitleView().setText("请选择城市");
-    topBar.setDividerHeight(1).setDividerColor(Color.parseColor("#eeeeee"));
-    mPicker.setTopBar(topBar);
+    //DefaultPickerDialog dialog = (DefaultPickerDialog) mPicker.dialog();
+    pickerDialog.getTitleView().setText("请选择城市");
+    // 设置弹窗
+    dialog.setCanceledOnTouchOutside(true);
+    dialog.getWindow().setGravity(Gravity.BOTTOM);
 
     // 拦截缺点按钮的事件
-    mPicker.setOnPickerChooseListener(new BasePicker.OnPickerChooseListener() {
+    pickerDialog.setOnPickerChooseListener(new OnPickerChooseListener() {
       @Override
       public boolean onConfirm() {
         Toast.makeText(mActivity, "拦截确定按钮", 1).show();

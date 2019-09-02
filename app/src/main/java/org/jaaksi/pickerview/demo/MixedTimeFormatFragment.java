@@ -1,6 +1,5 @@
 package org.jaaksi.pickerview.demo;
 
-import android.app.Dialog;
 import android.view.View;
 import android.widget.Button;
 import java.text.DateFormat;
@@ -61,9 +60,9 @@ public class MixedTimeFormatFragment extends BaseFragment
         })
         .create();
     // 2018/2/5 03:14:11 - 2020/1/2 22:51:6
-    Dialog pickerDialog = mTimePicker.getPickerDialog();
-    pickerDialog.setCanceledOnTouchOutside(true);
-    mTimePicker.getTopBar().getTitleView().setText("请选择时间");
+    //Dialog pickerDialog = mTimePicker.getPickerDialog();
+    //pickerDialog.setCanceledOnTouchOutside(true);
+    //mTimePicker.getTopBar().getTitleView().setText("请选择时间");
   }
 
   @Override

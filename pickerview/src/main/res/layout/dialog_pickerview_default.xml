@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:orientation="vertical">
+
+  <FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:background="@android:color/white">
+
+    <TextView
+      android:id="@+id/btn_cancel"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:layout_gravity="center_vertical"
+      android:gravity="center"
+      android:paddingLeft="20dp"
+      android:paddingRight="20dp"
+      android:text="取消"
+      android:textColor="#888888"
+      android:textSize="16dp" />
+
+    <TextView
+      android:id="@+id/tv_title"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:gravity="center"
+      android:textColor="#253238"
+      android:textSize="18dp"
+      tools:text="title" />
+
+    <TextView
+      android:id="@+id/btn_confirm"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:layout_gravity="right|center_vertical"
+      android:gravity="center"
+      android:paddingLeft="20dp"
+      android:paddingRight="20dp"
+      android:text="确定"
+      android:textColor="#41bc6a"
+      android:textSize="16dp" />
+
+    <View
+      android:id="@+id/divider"
+      android:layout_width="match_parent"
+      android:layout_height="0.5dp"
+      android:layout_gravity="bottom"
+      android:background="#e5e5e5" />
+  </FrameLayout>
+
+</LinearLayout>

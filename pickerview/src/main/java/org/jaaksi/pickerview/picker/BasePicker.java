@@ -1,27 +1,20 @@
 package org.jaaksi.pickerview.picker;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
-import android.os.Bundle;
-import android.support.annotation.CallSuper;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.SparseArray;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.LinearLayout;
 import java.util.ArrayList;
 import java.util.List;
-import org.jaaksi.pickerview.R;
-import org.jaaksi.pickerview.topbar.DefaultTopBar;
-import org.jaaksi.pickerview.topbar.ITopBar;
+import org.jaaksi.pickerview.dialog.DefaultPickerDialog;
+import org.jaaksi.pickerview.dialog.IGlobalDialogCreator;
+import org.jaaksi.pickerview.dialog.IPickerDialog;
 import org.jaaksi.pickerview.widget.PickerView;
 
 /**
@@ -31,7 +24,7 @@ import org.jaaksi.pickerview.widget.PickerView;
  * 三个picker的的思路有部分是不一样的，如reset调用地方，看看是不是可以优化
  */
 
-public abstract class BasePicker implements View.OnClickListener {
+public abstract class BasePicker {
   /** pickerView父容器的 default padding */
   public static Rect sDefaultPaddingRect;
   /** default picker background color */
@@ -42,14 +35,11 @@ public abstract class BasePicker implements View.OnClickListener {
   protected Context mContext;
   protected LayoutInflater mInflater;
 
-  private Dialog mPickerDialog;
-  private LinearLayout mRootLayout;
-  /** 用于构建defaultTopBar的接口 */
-  public static IDefaultTopBarCreator sDefaultTopBarCreator;
-  // topbar的设置，title，确定按钮等都通过这个控制，picker自身不处理
-  private ITopBar mITopBar;
-  protected OnPickerChooseListener mOnPickerChooseListener;
-  // 构造方法中就会初始化
+  /** 是否启用dialog */
+  protected boolean needDialog = true;
+  protected IPickerDialog iPickerDialog;
+  /** 用于构建全局的DefaultDialog的接口 */
+  public static IGlobalDialogCreator sDefaultDialogCreator;
   protected LinearLayout mPickerContainer;
   private Interceptor mInterceptor;
 
@@ -60,43 +50,11 @@ public abstract class BasePicker implements View.OnClickListener {
   public BasePicker(Context context) {
     mContext = context;
     mInflater = LayoutInflater.from(context);
-    initPickerDialog();
   }
 
-  /**
-   * 设置picker取消，确定按钮监听。可用于拦截选中操作。
-   *
-   * @param onPickerChooseListener listener
-   */
-  public BasePicker setOnPickerChooseListener(OnPickerChooseListener onPickerChooseListener) {
-    mOnPickerChooseListener = onPickerChooseListener;
-    return this;
-  }
-
-  /**
-   * 自定义TopBar，parent写{@link #getRootLayout()}
-   */
-  public void setTopBar(ITopBar ITopBar) {
-    mITopBar = ITopBar;
-    mRootLayout.removeViewAt(0);
-    addTopBar();
-  }
-
-  /**
-   * 获取TopBar
-   */
-  public ITopBar getTopBar() {
-    return mITopBar;
-  }
-
-  /**
-   * 获取pickerview的父容器，创建{@link DefaultTopBar#DefaultTopBar(ViewGroup)}时必须指定parent
-   *
-   * @return pickerview的父容器
-   */
-  public LinearLayout getRootLayout() {
-    return mRootLayout;
-  }
+  //public LinearLayout getPickerContainer() {
+  //  return mPickerContainer;
+  //}
 
   /**
    * 设置拦截器，用于用于在pickerview创建时拦截，设置pickerview的属性。Picker内部并不提供对PickerView的设置方法，
@@ -142,19 +100,7 @@ public abstract class BasePicker implements View.OnClickListener {
     return null;
   }
 
-  private void initPickerDialog() {
-    mRootLayout = new LinearLayout(mContext);
-    mRootLayout.setOrientation(LinearLayout.VERTICAL);
-    mRootLayout.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
-
-    if (sDefaultTopBarCreator != null) {
-      // 这里采用静态接口，避免静态持有view造成泄漏以及可以传递parent
-      mITopBar = sDefaultTopBarCreator.createDefaultTopBar(mRootLayout);
-    } else {
-      mITopBar = new DefaultTopBar(mRootLayout);
-    }
-    addTopBar();
-
+  protected void initPickerView() {
     mPickerContainer = new LinearLayout(mContext);
     mPickerContainer.setOrientation(LinearLayout.HORIZONTAL);
     mPickerContainer.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
@@ -165,32 +111,21 @@ public abstract class BasePicker implements View.OnClickListener {
     if (sDefaultPickerBackgroundColor != Color.TRANSPARENT) {
       setPickerBackgroundColor(sDefaultPickerBackgroundColor);
     }
-    mRootLayout.addView(mPickerContainer);
 
-    mPickerDialog = new Dialog(mContext, R.style.dialog_pickerview) {
-      // 要在onCreate里设置，否则如果style设置了windowIsFloating=true，会变成-2，-2
-      @Override
-      protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Window window = mPickerDialog.getWindow();
-        if (window != null) {
-          window.setWindowAnimations(R.style.picker_dialog_anim);
-          // 默认是match_parent的
-          window.setLayout(WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.WRAP_CONTENT);
-          window.setGravity(Gravity.BOTTOM);
+    if (needDialog) { // 是否使用弹窗
+      // 弹窗优先级：自定义的 > 全局的 > 默认的
+      if (iPickerDialog == null) { // 如果没有自定义dialog
+        if (sDefaultDialogCreator != null) { // 如果定义了全局的dialog
+          iPickerDialog = sDefaultDialogCreator.create(mContext);
+        } else { // 使用默认的
+          iPickerDialog = new DefaultPickerDialog(mContext);
         }
       }
-    };
 
-    mPickerDialog.setCanceledOnTouchOutside(sDefaultCanceledOnTouchOutside);
-    mPickerDialog.setContentView(mRootLayout);
-  }
-
-  private void addTopBar() {
-    mRootLayout.addView(mITopBar.getTopBarView(), 0);
-    mITopBar.getBtnCancel().setOnClickListener(this);
-    mITopBar.getBtnConfirm().setOnClickListener(this);
+      if (iPickerDialog != null) {
+        iPickerDialog.onCreate(this);
+      }
+    }
   }
 
   /**
@@ -294,59 +229,31 @@ public abstract class BasePicker implements View.OnClickListener {
   }
 
   /**
-   * 获取Picker弹窗。可以在new之后设置dialog属性
+   * @return 获取IPickerDialog
    */
-  public Dialog getPickerDialog() {
-    return mPickerDialog;
+  public IPickerDialog dialog() {
+    return iPickerDialog;
+  }
+
+  /**
+   * @return 获取picker的view，用于非弹窗情况
+   */
+  public LinearLayout view() {
+    return mPickerContainer;
   }
 
   /**
    * 显示picker弹窗
    */
   public void show() {
-    mPickerDialog.show();
-  }
-
-  protected <T extends View> T findViewById(int id) {
-    return mPickerDialog.findViewById(id);
-  }
-
-  @CallSuper
-  @Override
-  public void onClick(View v) {
-    if (!canSelected()) return;//  滑动未停止不响应点击事件
-    if (v == mITopBar.getBtnConfirm()) {
-      // 给用户拦截
-      if (mOnPickerChooseListener == null || mOnPickerChooseListener.onConfirm()) {
-        onConfirm();
-        mPickerDialog.dismiss();
-      }
-    } else if (v == mITopBar.getBtnCancel()) {
-      onCancel();
-      if (mOnPickerChooseListener != null) {
-        mOnPickerChooseListener.onCancel();
-      }
-    }
+    if (/*!needDialog || */iPickerDialog == null) return;
+    iPickerDialog.showDialog();
   }
 
   /**
    * 点击确定按钮的回调
    */
-  protected abstract void onConfirm();
-
-  public void onCancel() {
-    mPickerDialog.dismiss();
-  }
-
-  public interface IDefaultTopBarCreator {
-    /**
-     * 创建defaulttopbar
-     *
-     * @param parent parent
-     * @return defaultTopBar
-     */
-    ITopBar createDefaultTopBar(LinearLayout parent);
-  }
+  public abstract void onConfirm();
 
   /**
    * 用于子类修改设置PickerView属性
@@ -358,15 +265,5 @@ public abstract class BasePicker implements View.OnClickListener {
      * @param pickerView 增加layoutparams参数，方便设置weight
      */
     void intercept(PickerView pickerView, LinearLayout.LayoutParams params);
-  }
-
-  public interface OnPickerChooseListener {
-
-    /**
-     * @return 是否回调选中关闭dialog
-     */
-    boolean onConfirm();
-
-    void onCancel();
   }
 }

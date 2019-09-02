@@ -1,5 +1,7 @@
 package org.jaaksi.pickerview.util;
 
+import android.annotation.SuppressLint;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 /**
@@ -10,6 +12,11 @@ import java.util.Calendar;
 
 public class DateUtil {
   public static final long ONE_DAY = 1000 * 60 * 60 * 24;
+
+  @SuppressLint("SimpleDateFormat")
+  public static SimpleDateFormat create(String format) {
+    return new SimpleDateFormat(format);
+  }
 
   /**
    * 获取某年某月有多少天

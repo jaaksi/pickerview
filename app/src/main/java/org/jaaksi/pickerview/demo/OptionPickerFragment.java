@@ -2,9 +2,6 @@ package org.jaaksi.pickerview.demo;
 
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.LinearLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,68 +9,49 @@ import org.jaaksi.pickerview.dataset.OptionDataSet;
 import org.jaaksi.pickerview.demo.model.City;
 import org.jaaksi.pickerview.demo.model.County;
 import org.jaaksi.pickerview.demo.model.Province;
-import org.jaaksi.pickerview.picker.BasePicker;
 import org.jaaksi.pickerview.picker.OptionPicker;
-import org.jaaksi.pickerview.widget.DefaultCenterDecoration;
-import org.jaaksi.pickerview.widget.PickerView;
-import util.DataParseUtil;
-import util.StreamUtil;
 
 /**
  * 演示topbar,CenterDecoration,padding，interceptor,
  */
 public class OptionPickerFragment extends BaseFragment
-  implements View.OnClickListener, OptionPicker.OnOptionSelectListener,
-  CompoundButton.OnCheckedChangeListener {
+  implements View.OnClickListener, OptionPicker.OnOptionSelectListener {
 
   private OptionPicker mPicker;
   private Button mBtnShow;
-  private CheckBox cbForeign;
-  private List<Province> citys;
   // 2-3-县4
   private String provinceId /*= "200"*/, cityId /*= "230"*/, countyId/* = "234"*/;
 
-  @Override
-  protected int getLayoutId() {
+  @Override protected int getLayoutId() {
     return R.layout.fragment_option_picker;
   }
 
-  @Override
-  protected void initView(View view) {
-    cbForeign = view.findViewById(R.id.cb_foreign);
+  @Override protected void initView(View view) {
     mBtnShow = view.findViewById(R.id.btn_show);
     mBtnShow.setOnClickListener(this);
-    cbForeign.setOnCheckedChangeListener(this);
-    final DefaultCenterDecoration decoration = new DefaultCenterDecoration(getActivity());
-    decoration.setMargin(0, 0, 0, 0);
-    //decoration.setLineWidth()
-    mPicker = new OptionPicker.Builder(mActivity, 3, this)
-      .setInterceptor(new BasePicker.Interceptor() {
-        @Override
-        public void intercept(PickerView pickerView, LinearLayout.LayoutParams params) {
-          // 修改中心装饰线
-          pickerView.setCenterDecoration(decoration);
+    mPicker = new OptionPicker.Builder(mActivity, 3, this).create();
+    // 设置 Formatter
+    /*mPicker.setFormatter(new OptionPicker.Formatter() {
+      @Override public CharSequence format(OptionPicker picker, int level, int position,
+        CharSequence charSequence) {
+        if (level == 0) {
+          charSequence = charSequence + "省";
+        } else if (level == 1) {
+          charSequence = charSequence + "市";
+        } else if (level == 2) {
+          charSequence = charSequence + "县";
         }
-      })
-      .create();
+        return charSequence;
+      }
+    });*/
     // 设置标题，这里调用getTopBar来设置标题
     //DefaultTopBar topBar = (DefaultTopBar) mPicker.getTopBar();
-    mPicker.getTopBar().getTitleView().setText("请选择城市");
-    resetPicker();
-  }
+    //mPicker.getTopBar().getTitleView().setText("请选择城市");
+    //List<Province> data = createData();
+    //mPicker.setDataWithValues(data);
+    //mPicker.setDataWithValues(data, provinceId, cityId, countyId);
 
-  private void resetPicker() {
-    provinceId = null;
-    cityId = null;
-    countyId = null;
-    if (cbForeign.isChecked()) {
-      testForeign();
-    } else {
-      if (citys == null) {
-        citys = DataParseUtil.toList(StreamUtil.get(getActivity(), R.raw.city), Province.class);
-      }
-      mPicker.setData(citys);
-    }
+    testForeign();
   }
 
   private void testForeign() {
@@ -149,20 +127,13 @@ public class OptionPickerFragment extends BaseFragment
     return list;
   }
 
-  @Override
-  public void onClick(View v) {
+  @Override public void onClick(View v) {
     // 直接传入选中的值
     mPicker.setSelectedWithValues(provinceId, cityId, countyId);
     mPicker.show();
   }
 
-  @Override
-  public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-    resetPicker();
-  }
-
-  @Override
-  public void onOptionSelect(OptionPicker picker, int[] selectedPosition,
+  @Override public void onOptionSelect(OptionPicker picker, int[] selectedPosition,
     OptionDataSet[] selectedOptions) {
     System.out.println("selectedPosition = " + Arrays.toString(selectedPosition));
     String text;

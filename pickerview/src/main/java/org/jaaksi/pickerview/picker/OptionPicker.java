@@ -1,8 +1,10 @@
 package org.jaaksi.pickerview.picker;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import java.util.List;
 import org.jaaksi.pickerview.dataset.OptionDataSet;
+import org.jaaksi.pickerview.dialog.IPickerDialog;
 import org.jaaksi.pickerview.picker.option.ForeignOptionDelegate;
 import org.jaaksi.pickerview.picker.option.IOptionDelegate;
 import org.jaaksi.pickerview.picker.option.OptionDelegate;
@@ -17,7 +19,7 @@ import org.jaaksi.pickerview.widget.PickerView;
  * 1.支持设置层级
  * 2.构造数据源简单，只需要实现OptionDataSet接口
  * 3.支持联动及不联动
- * 4.支持通过选中的value设置选中项，内部处理选中项逻辑，避免用户麻烦的遍历处理
+ * 3.支持通过选中的value设置选中项，内部处理选中项逻辑，避免用户麻烦的遍历处理
  */
 
 public class OptionPicker extends BasePicker
@@ -125,7 +127,7 @@ public class OptionPicker extends BasePicker
   }
 
   @Override
-  protected void onConfirm() {
+  public void onConfirm() {
     if (mOnOptionSelectListener != null) {
       mOnOptionSelectListener.onOptionSelect(this, mSelectedPosition, getSelectedOptions());
     }
@@ -165,6 +167,8 @@ public class OptionPicker extends BasePicker
     private final int mHierarchy;
     private Formatter mFormatter;
     private OnOptionSelectListener mOnOptionSelectListener;
+    private boolean needDialog = true;
+    private IPickerDialog iPickerDialog;
 
     /**
      * 强制设置的属性直接在构造方法中设置
@@ -198,8 +202,23 @@ public class OptionPicker extends BasePicker
       return this;
     }
 
+    /**
+     * 自定义弹窗，如果为null表示不需要弹窗
+     * @param iPickerDialog
+     * @return
+     */
+    public Builder dialog(@Nullable IPickerDialog iPickerDialog) {
+      needDialog = iPickerDialog != null;
+      this.iPickerDialog = iPickerDialog;
+      return this;
+    }
+
     public OptionPicker create() {
       OptionPicker picker = new OptionPicker(mContext, mHierarchy, mOnOptionSelectListener);
+      picker.needDialog = needDialog;
+      picker.iPickerDialog = iPickerDialog;
+      picker.initPickerView();
+
       picker.setFormatter(mFormatter);
       picker.setInterceptor(mInterceptor);
       picker.initPicker();
@@ -221,7 +240,7 @@ public class OptionPicker extends BasePicker
      * @param selectedOptions length = mHierarchy。选中的选项，如果指定index为null则表示该列没有数据
      */
     void onOptionSelect(OptionPicker picker, int[] selectedPosition,
-      OptionDataSet[] selectedOptions);
+        OptionDataSet[] selectedOptions);
   }
 
   public interface Delegate {

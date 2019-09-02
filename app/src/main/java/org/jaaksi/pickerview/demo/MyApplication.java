@@ -1,14 +1,17 @@
 package org.jaaksi.pickerview.demo;
 
 import android.app.Application;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
-import android.widget.LinearLayout;
+import org.jaaksi.pickerview.dialog.IGlobalDialogCreator;
+import org.jaaksi.pickerview.dialog.IPickerDialog;
 import org.jaaksi.pickerview.picker.BasePicker;
-import org.jaaksi.pickerview.topbar.ITopBar;
 import org.jaaksi.pickerview.util.Util;
 import org.jaaksi.pickerview.widget.DefaultCenterDecoration;
 import org.jaaksi.pickerview.widget.PickerView;
+
+//import org.jaaksi.pickerview.dialog.IDefaultTopBarCreator;
 
 /**
  * 创建时间：2018年02月28日17:45 <br>
@@ -45,11 +48,16 @@ public class MyApplication extends Application {
     BasePicker.sDefaultPaddingRect = new Rect(padding, padding, padding, padding);
     BasePicker.sDefaultPickerBackgroundColor = Color.WHITE;
     BasePicker.sDefaultCanceledOnTouchOutside = false;
-    // 自定义 TopBar
-    BasePicker.sDefaultTopBarCreator = new BasePicker.IDefaultTopBarCreator() {
+    //// 自定义 TopBar
+    //DefaultPickerDialog.sDefaultTopBarCreator = new IDefaultTopBarCreator() {
+    //  @Override public ITopBar createDefaultTopBar(LinearLayout parent) {
+    //    return new CustomTopBar(parent);
+    //  }
+    //};
+    BasePicker.sDefaultDialogCreator = new IGlobalDialogCreator() {
       @Override
-      public ITopBar createDefaultTopBar(LinearLayout parent) {
-        return new CustomTopBar(parent);
+      public IPickerDialog create(Context context) {
+        return new PickerDialog();
       }
     };
 

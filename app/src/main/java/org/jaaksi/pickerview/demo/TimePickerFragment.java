@@ -23,7 +23,7 @@ import org.jaaksi.pickerview.widget.PickerView;
 public class TimePickerFragment extends BaseFragment
   implements View.OnClickListener, TimePicker.OnTimeSelectListener {
   private Button mBtnShow;
-  private CheckBox mCbDate, mCbYear, mCbMonth, mCbTime, mCbDay, mCbHour, mCbMinute;
+  private CheckBox mCbDate, mCbYear, mCbMonth, mCbTime, mCbDay, mCbNoon, mCbHour, mCbMinute;
   private TimePicker mTimePicker;
   public static final DateFormat sSimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
   private int mCurrYear;
@@ -45,6 +45,7 @@ public class TimePickerFragment extends BaseFragment
     mCbYear = view.findViewById(R.id.cb_year);
     mCbMonth = view.findViewById(R.id.cb_month);
     mCbDay = view.findViewById(R.id.cb_day);
+    mCbNoon = view.findViewById(R.id.cb_noon);
     mCbTime = view.findViewById(R.id.cb_time);
     mCbHour = view.findViewById(R.id.cb_hour);
     mCbMinute = view.findViewById(R.id.cb_minute);
@@ -71,6 +72,7 @@ public class TimePickerFragment extends BaseFragment
       if (mCbMonth.isChecked()) type = type | TimePicker.TYPE_MONTH;
       if (mCbDay.isChecked()) type = type | TimePicker.TYPE_DAY;
     }
+    if (mCbNoon.isChecked()) type = type | TimePicker.TYPE_12_HOUR;
 
     if (mCbTime.isChecked()) {
       type = type | TimePicker.TYPE_MIXED_TIME;
