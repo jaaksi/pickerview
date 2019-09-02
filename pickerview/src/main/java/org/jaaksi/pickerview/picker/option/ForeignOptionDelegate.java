@@ -74,7 +74,7 @@ public class ForeignOptionDelegate implements IOptionDelegate {
   public void reset() {
     for (int i = 0; i < mDelegate.getHierarchy(); i++) {
       PickerView pickerView = mDelegate.getPickerViews().get(i);
-      pickerView.setSelectedPosition(mDelegate.getSelectedPosition()[i]);
+      pickerView.setSelectedPosition(mDelegate.getSelectedPosition()[i],false);
     }
   }
 }
