@@ -362,6 +362,10 @@ public class MyApplication extends Application {
 ```
 
 ## Change Log
+  > v2.0.3(2019-09-02)
+  - release v2.0.3
+  - 修复滑动但不点击确定键，关闭弹窗后，再次点击无法回显
+
   > v2.0.1(2019-04-23)
   - release v2.0.1
   - 修复OptionDelegate遍历不存在value错误引起的bug
