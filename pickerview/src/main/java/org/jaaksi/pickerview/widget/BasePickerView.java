@@ -836,7 +836,8 @@ public abstract class BasePickerView<T> extends View {
    * @param isNotify 是否回调{@link #notifySelected()}
    */
   public void setSelectedPosition(int position, boolean isNotify) {
-    if (position < 0 || position > mAdapter.getItemCount() - 1 || position == mSelected) {
+    // bugfix: 这里不能判断position == mSelected，因为可能页面滑动了，但是没有点确定，一样不是目标位置
+    if (position < 0 || position > mAdapter.getItemCount() - 1 /*|| position == mSelected*/) {
       return;
     }
     mSelected = position;
