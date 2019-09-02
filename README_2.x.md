@@ -1,6 +1,6 @@
 # One very very user-friendly Picker library
-一个非常好用的Android PickerView库，内部提供2种常用类型的Picker。支持扩展自定义Picker。支持自定义弹窗。支持作为view的非弹窗场景。
-* TimePicker：时间选择器，支持聚合模式（合并v1.x的MixedTimePicker），支持12小时制（上下午）。
+一个非常好用的Android PickerView库，内部提供3种常用类型的Picker。支持扩展自定义Picker。
+* TimePicker：时间选择器，支持聚合模式（合并v1.x的MixedTimePicker）
 * OptionPicker：联动选择器
 
 ## Screenshot
@@ -17,7 +17,7 @@
 通过组装PickerView实现常用的Picker选择器。上面已经列举提供的3中常用的Picker。
 
 ## BasePicker
-Picker基类：封装PickerView容器，create and add PickerView方法，Picker弹窗等方法。
+Picker基类：封装了TopBar，PickerView容器，create and add PickerView方法，Picker弹窗等方法。
 三种Picker都继承自BasePicker，你也可以继承它扩展自己的Picker。
 
 ### API
@@ -26,15 +26,55 @@ Picker基类：封装PickerView容器，create and add PickerView方法，Picker
 | setPickerBackgroundColor | 设置picker背景
 | setPadding | 设置PickerView父容器padding 单位:px
 | setTag | 给Picker 设置tag，用于区分不同的picker等。用法同View setTag
+| getRootLayout | 获取PickerView的父容器，创建DefaultTopBar时必须指定
+| setOnPickerChooseListener | 设置picker取消，确定按钮监听。可用于拦截选中操作
+| setTopBar | 设置自定义TopBar
 | setInterceptor | 设置拦截器
 | createPickerView | 创建PickerView
 | getPickerViews | 获取Picker中所有的pickerview集合
 | addPicker | 将创建的PickerView 添加到上面集合中，createPickerView内部已调用该方法
 | findPickerViewByTag | 通过tag找到对应的PickerView
-| canSelected | 是否可以Picker的取消，确定按键
-| dialog | 获取Picker弹窗接口，用于设置title等
-| view | 获取picker的view，用于非弹窗的场景
+| isScrolling | 是否滚动未停止。滚动未停止的时候，不响应Picker的取消，确定按键
+| getPickerDialog | 获取Picker弹窗。可以在new之后设置dialog属性
 | show | 显示picker弹窗
+
+> 对比github上最受欢迎的同类库 [Android-PickerView](https://github.com/Bigkoo/Android-PickerView/blob/master/pickerview/src/main/java/com/bigkoo/pickerview/TimePickerView.java)
+本库将TopBar等通用相关逻辑封装在基类中，并提供代码中创建PickerView方法，不需要再依赖xml。用户自定义Picker时，继承BasePicker，只需要处理自己的逻辑即可，简单便捷。
+而对Android-PickerView来说，实现自定义Picker，依然需要处理TopBar等逻辑。造成大量重复代码。
+
+### TopBar
+TopBar:TopBar通过抽象接口ITopBar来管理，实现Picker与TopBar的解耦。提供默认实现DefaultTopBar。可实现接口定制自己的TopBar。
+```java
+   public interface ITopBar {
+     /**
+      * @return topbar view
+      */
+     View getTopBarView();
+
+     /**
+      * @return 取消按钮view
+      */
+     View getBtnCancel();
+
+     /**
+      * @return 确定按钮view
+      */
+     View getBtnConfirm();
+
+     /**
+      * @return title view
+      */
+     TextView getTitleView();
+   }
+```
+
+### DefaultTopBar API
+|api|description|
+---|---
+| setDividerColor | 设置topbar bottom line color
+| setDividerHeight | 设置bottom divider line height
+| getDivider | 获取TopBar bottom line
+| getTitleView | 获取TopBar title view
 
 ### Interceptor
 拦截器：用于在pickerview创建时拦截，设置pickerview的属性。
@@ -56,10 +96,10 @@ Picker基类：封装PickerView容器，create and add PickerView方法，Picker
 这一点对比 [Android-PickerView](https://github.com/Bigkoo/Android-PickerView/blob/master/pickerview/src/main/java/com/bigkoo/pickerview/TimePickerView.java), 每个Picker都需要声明对PickerView的设置方法，与PickerView严重耦合。需要开发者copy大量重复代码，且无法区分每一个PickerView设置不同的属性。
 
 ## TimePicker
-常用的时间选择器，支持 年、月、日、时、分，支持聚合（1.x 的MixTimePicker）,支持12小时制（上下午）
+常用的时间选择器，支持 年、月、日、时、分，支持聚合（1.x 的MixTimePicker）
   * 时间类型type的设计：自由组合、随心所欲(当然应该是有意义的)
   ```
-    TYPE_YEAR | TYPE_MONTH | TYPE_DAY | TYPE_12_HOUR | TYPE_HOUR | TYPE_MINUTE
+    TYPE_YEAR | TYPE_MONTH | TYPE_DAY | TYPE_HOUR | TYPE_MINUTE
     
     TYPE_MIXED_DATE | TYPE_MIXED_TIME
   ``` 
@@ -78,7 +118,6 @@ Picker基类：封装PickerView容器，create and add PickerView方法，Picker
   * 支持支持自定义日期、时间格式（Format），如显示今年，明年
   * 支持混合模式，支持日期，时间混合
   * 支持设置时间间隔，如30分钟
-  * 支持12小时制（上下午）
 
 ### API
 |api|description|
@@ -152,8 +191,6 @@ TimePicker Formatter：用于根据type和num格式化时间文案
           return super.format(picker, type, position, num);
         }
       }).create();
-      PickerDialog dialog = (PickerDialog) mTimePicker.dialog();
-      dialog.getTitleView().setText("请选择时间");
 
     //mTimePicker.setSelectedDate(1549349843000L);
     mTimePicker.show();
@@ -264,7 +301,7 @@ field|description|defaultValue
 ---|---|---
 sDefaultPaddingRect | pickerView父容器的 default padding | null(无padding)
 sDefaultPickerBackgroundColor | default picker background color | Color.WHITE
-sDefaultDialogCreator | 用于构建自定义Dialog的接口 | null
+sDefaultTopBarCreator | 用于构建自定义defaultTopBar的接口 | null
 
 * DefaultCenterDecoration
 
@@ -305,11 +342,10 @@ public class MyApplication extends Application {
     int padding = Util.dip2px(this, 20);
     BasePicker.sDefaultPaddingRect = new Rect(padding, padding, padding, padding);
     BasePicker.sDefaultPickerBackgroundColor = Color.WHITE;
-    // 自定义弹窗
-    BasePicker.sDefaultDialogCreator = new IGlobalDialogCreator() {
-      @Override
-      public IPickerDialog create(Context context) {
-        return new PickerDialog();
+    // 自定义 TopBar
+    BasePicker.sDefaultTopBarCreator = new BasePicker.IDefaultTopBarCreator() {
+      @Override public ITopBar createDefaultTopBar(LinearLayout parent) {
+        return new CustomTopBar(parent);
       }
     };
 
@@ -326,12 +362,6 @@ public class MyApplication extends Application {
 ```
 
 ## Change Log
-  > v3.0.0(2019-09-02)
-  - release v3.0.0
-  - 支持自定义弹窗
-  - 支持费弹窗样式，作为view的形式
-  - 支持12小时制（上下午）
-
   > v2.0.3(2019-09-02)
   - release v2.0.3
   - 修复滑动但不点击确定键，关闭弹窗后，再次点击无法回显
@@ -357,7 +387,7 @@ public class MyApplication extends Application {
 
 ## Gradle
 ```java
-    compile 'org.jaaksi:pickerview:3.0.0'
+    compile 'org.jaaksi:pickerview:2.0.1'
 ```
 
 ## Thanks

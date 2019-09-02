@@ -122,6 +122,8 @@ public class TimePickerFragment extends BaseFragment
           return super.format(picker, type, position, num);
         }
       }).create();
+    PickerDialog dialog = (PickerDialog) mTimePicker.dialog();
+    dialog.getTitleView().setText("请选择时间");
     // 2019/2/5 14:57:23
     //mTimePicker.setSelectedDate(1526449500000L);
   }
