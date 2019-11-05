@@ -788,6 +788,7 @@ public abstract class BasePickerView<T> extends View {
       } else {
         moveToCenter();
       }
+      isTouching = false;
       return true;
     }
   }
