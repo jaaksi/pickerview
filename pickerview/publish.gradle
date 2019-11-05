@@ -12,7 +12,7 @@ def getLocalProperties(String key, Object defValue) {
 def bintrayUser = getLocalProperties("bintrayUser", "")
 def bintrayKey = getLocalProperties("bintrayKey", "")
 
-def LibVersion = '3.0.0'
+def LibVersion = '3.0.1'
 
 publish {
   userOrg = bintrayUser //bintray注册的用户名所属组织名
