@@ -357,7 +357,7 @@ public class MyApplication extends Application {
 
 ## Gradle
 ```java
-    compile 'org.jaaksi:pickerview:3.0.0'
+    compile 'org.jaaksi:pickerview:3.0.1'
 ```
 
 ## Thanks
