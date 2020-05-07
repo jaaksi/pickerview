@@ -639,8 +639,12 @@ public class TimePicker extends BasePicker
      * @param endDate 截止时间
      */
     public Builder setRangDate(long startDate, long endDate) {
-      mStartDate = startDate;
       mEndDate = endDate;
+      if (endDate < startDate){
+        mStartDate = endDate;
+      } else {
+        mStartDate = startDate;
+      }
       return this;
     }
 

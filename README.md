@@ -362,6 +362,10 @@ public class MyApplication extends Application {
 ```
 
 ## Change Log
+  > v2.0.4(2020-05-07)
+  - release v2.0.4
+  - 同步3.x bug修复：Fixed #22，修复单击item滚动时，确定案件无效。修复startTime > endTime时造成数据混乱
+    
   > v2.0.3(2019-09-02)
   - release v2.0.3
   - 修复滑动但不点击确定键，关闭弹窗后，再次点击无法回显
