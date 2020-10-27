@@ -116,7 +116,7 @@ public class PickerView<T> extends BasePickerView<T> {
    * 设置蒙版
    */
   public void setShadowsColors(@ColorInt int[] colors) {
-    sShadowColors = colors;
+    mShadowColors = colors;
     resetShadow();
   }
 
