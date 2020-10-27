@@ -326,6 +326,12 @@ public class MyApplication extends Application {
 ```
 
 ## Change Log
+  > v3.0.2(2020-10-27)
+  - fix#32 setShadowsColors() 屏蔽阴影 无效
+
+  > v3.0.1
+  - 修复startTime > endTime时造成数据混乱
+
   > v3.0.0(2019-09-02)
   - release v3.0.0
   - 支持自定义弹窗
@@ -357,7 +363,7 @@ public class MyApplication extends Application {
 
 ## Gradle
 ```java
-    compile 'org.jaaksi:pickerview:3.0.1'
+    compile 'org.jaaksi:pickerview:3.0.2'
 ```
 
 ## Thanks

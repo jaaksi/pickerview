@@ -205,7 +205,6 @@ public class OptionPicker extends BasePicker
     /**
      * 自定义弹窗，如果为null表示不需要弹窗
      * @param iPickerDialog
-     * @return
      */
     public Builder dialog(@Nullable IPickerDialog iPickerDialog) {
       needDialog = iPickerDialog != null;
