@@ -1,53 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:orientation="vertical">
-
-  <Button
-    android:id="@+id/btn_test_pickerview"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:lines="2"
-    android:onClick="onClick"
-    android:text="PickerView"
-    android:textAllCaps="false" />
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-  <Button
-    android:id="@+id/btn_timepicker"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:lines="2"
-    android:onClick="onClick"
-    android:text="TimePicker"
-    android:textAllCaps="false" />
+    <Button
+        android:id="@+id/btn_test_pickerview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:lines="2"
+        android:onClick="onClick"
+        android:text="在View中使用"
+        android:textAllCaps="false" />
 
-  <Button
-    android:id="@+id/btn_mixedtimepicker"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:lines="2"
-    android:onClick="onClick"
-    android:text="11月25日 星期一 13:14"
-    android:textAllCaps="false" />
+    <Button
+        android:id="@+id/btn_timepicker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:lines="2"
+        android:onClick="onClick"
+        android:text="TimePicker"
+        android:textAllCaps="false" />
 
-  <Button
-    android:id="@+id/btn_optionpicker"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:lines="2"
-    android:onClick="onClick"
-    android:text="OptionPicker"
-    android:textAllCaps="false" />
+    <Button
+        android:id="@+id/btn_mixedtimepicker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:lines="2"
+        android:onClick="onClick"
+        android:text="xx月xx日 星期x，时间间隔为半小时"
+        android:textAllCaps="false" />
 
-  <Button
-    android:id="@+id/btn_picker_configs"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:lines="2"
-    android:onClick="onClick"
-    android:text="配置picker样式"
-    android:textAllCaps="false" />
+    <Button
+        android:id="@+id/btn_optionpicker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:lines="2"
+        android:onClick="onClick"
+        android:text="省、市、区/县 三级联动"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/btn_optionpicker2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:lines="2"
+        android:onClick="onClick"
+        android:text="二级不联动"
+        android:textAllCaps="false" />
 
 
 </LinearLayout>

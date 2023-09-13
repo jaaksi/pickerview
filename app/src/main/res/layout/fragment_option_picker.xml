@@ -1,21 +1,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:tools="http://schemas.android.com/tools"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:orientation="vertical"
-  tools:context="org.jaaksi.pickerview.demo.OptionPickerFragment">
-
-  <CheckBox
-    android:id="@+id/cb_foreign"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="是否不关联" />
-
-  <Button
-    android:id="@+id/btn_show"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="show"
-    android:textAllCaps="false" />
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="org.jaaksi.pickerview.demo.ui.OptionPickerFragment">
+
+    <Button
+        android:id="@+id/btn_show"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        tools:text="省、市、区/县 三级联动" />
 
 </LinearLayout>

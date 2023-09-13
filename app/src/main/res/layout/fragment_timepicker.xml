@@ -1,92 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:orientation="vertical">
-
-  <LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="选择日期、时间类型，可只有组合" />
+
+    <LinearLayout
+        android:id="@+id/ll_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <CheckBox
+            android:id="@+id/cb_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="日期聚合" />
+
+        <CheckBox
+            android:id="@+id/cb_year"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="年" />
+
+        <CheckBox
+            android:id="@+id/cb_month"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="月" />
+
+        <CheckBox
+            android:id="@+id/cb_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="日" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <CheckBox
+            android:id="@+id/cb_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="时间聚合" />
+
+        <CheckBox
+            android:id="@+id/cb_hour"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="时" />
+
+        <CheckBox
+            android:id="@+id/cb_minute"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="分" />
+    </LinearLayout>
 
     <CheckBox
-      android:id="@+id/cb_date"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:checked="false"
-      android:text="日期" />
-
-    <CheckBox
-      android:id="@+id/cb_year"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:checked="true"
-      android:text="年" />
-
-    <CheckBox
-      android:id="@+id/cb_month"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:checked="true"
-      android:text="月" />
-
-    <CheckBox
-      android:id="@+id/cb_day"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:checked="true"
-      android:text="日" />
-
-
-  </LinearLayout>
-  <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
-    <CheckBox
-      android:id="@+id/cb_noon"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:checked="false"
-      android:text="上下午" />
-
-    <CheckBox
-      android:id="@+id/cb_time"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:checked="false"
-      android:text="时间" />
-
-    <CheckBox
-      android:id="@+id/cb_hour"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:checked="true"
-      android:text="时" />
-
-    <CheckBox
-      android:id="@+id/cb_minute"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:checked="true"
-      android:text="分" />
-  </LinearLayout>
-
-  <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+        android:id="@+id/cb_noon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:text="是否12小时制（显示 上下午）" />
 
     <Button
-      android:id="@+id/btn_choose_type"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="重置类型" />
-
-    <Button
-      android:id="@+id/btn_show"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="show"
-      android:textSize="18dp" />
-  </LinearLayout>
+        android:id="@+id/btn_show"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="show"
+        android:textSize="18dp" />
 
 </LinearLayout>
