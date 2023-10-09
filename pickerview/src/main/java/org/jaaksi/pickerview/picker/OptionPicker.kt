@@ -130,7 +130,9 @@ class OptionPicker private constructor(
         val index = pickerView.tag as Int
         resetPosition(index, position)
         reset()
-        // todo 如果是view模式直接在这里回调Listener
+        if (!needDialog){
+            onConfirm()
+        }
     }
 
     override fun format(

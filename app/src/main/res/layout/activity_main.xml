@@ -5,21 +5,21 @@
     android:orientation="vertical">
 
     <Button
-        android:id="@+id/btn_test_pickerview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:lines="2"
-        android:onClick="onClick"
-        android:text="在View中使用"
-        android:textAllCaps="false" />
-
-    <Button
         android:id="@+id/btn_timepicker"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:lines="2"
         android:onClick="onClick"
         android:text="TimePicker"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/btn_test_pickerview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:lines="2"
+        android:onClick="onClick"
+        android:text="在View中使用"
         android:textAllCaps="false" />
 
     <Button

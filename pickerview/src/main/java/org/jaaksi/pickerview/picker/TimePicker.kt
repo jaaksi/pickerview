@@ -217,6 +217,7 @@ class TimePicker private constructor(
         if (hasType(TYPE_MIXED_TIME)) { // 包含Time
             mTimePicker = createPickerView(TYPE_MIXED_TIME, 2f)
             mTimePicker!!.formatter = this
+            mTimePicker!!.setOnSelectedListener(this)
         } else {
             if (hasType(TYPE_HOUR)) {
                 mHourPicker = createPickerView(TYPE_HOUR, 1f)
@@ -229,6 +230,7 @@ class TimePicker private constructor(
             if (hasType(TYPE_MINUTE)) {
                 mMinutePicker = createPickerView(TYPE_MINUTE, 1f)
                 mMinutePicker!!.formatter = this
+                mMinutePicker!!.setOnSelectedListener(this)
             }
         }
     }
@@ -660,6 +662,9 @@ class TimePicker private constructor(
 
             TYPE_HOUR -> resetMinuteAdapter(false)
         }
+        if (!needDialog){
+            onConfirm()
+        }
     }
 
     override fun onConfirm() {
@@ -889,7 +894,7 @@ class TimePicker private constructor(
         ): CharSequence
     }
 
-    interface OnTimeSelectListener {
+    fun interface OnTimeSelectListener {
         /**
          * 点击确定按钮选择时间后回调
          *
