@@ -111,7 +111,7 @@ class TimePickerFragment : BaseFragment<FragmentTimepickerBinding>(), OnTimeSele
             .setSelectedDate(selectedTime)
             // 设置pickerview样式
             .setInterceptor { pickerView, params ->
-                pickerView.visibleItemCount = 3
+                pickerView.visibleItemCount = 5
                 // 将年月设置为循环的
                 val type = pickerView.tag as Int
                 //if (type == TimePicker.TYPE_YEAR || type == TimePicker.TYPE_MONTH) {

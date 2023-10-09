@@ -3,6 +3,7 @@ package org.jaaksi.pickerview.demo.ui
 import android.os.Bundle
 import org.jaaksi.pickerview.demo.base.BaseFragment
 import org.jaaksi.pickerview.demo.databinding.FragmentMixedtimeFormatBinding
+import org.jaaksi.pickerview.demo.picker.PickerDialog
 import org.jaaksi.pickerview.picker.TimePicker
 import org.jaaksi.pickerview.picker.TimePicker.OnTimeSelectListener
 import org.jaaksi.pickerview.util.DateUtil
@@ -67,6 +68,8 @@ class MixedTimeFormatFragment : BaseFragment<FragmentMixedtimeFormatBinding>(),
                 }
             })
             .create()
+        val dialog = mTimePicker.dialog() as PickerDialog?
+        dialog?.binding?.tvTitle?.text = "请选择时间"
     }
 
     override fun onTimeSelect(picker: TimePicker, date: Date) {

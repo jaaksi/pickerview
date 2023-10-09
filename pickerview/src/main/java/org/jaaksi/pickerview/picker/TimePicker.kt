@@ -137,8 +137,8 @@ class TimePicker private constructor(
     private val isAfterNoon: Boolean
         private get() = hasType(TYPE_12_HOUR) && mNoonPicker!!.selectedItem == 1
 
-    private val selectedDates: Date
-        private get() {
+    val selectedDates: Date
+        get() {
             val calendar = Calendar.getInstance()
             if (hasType(TYPE_MIXED_DATE)) {
                 calendar.timeInMillis = mStartDate.timeInMillis

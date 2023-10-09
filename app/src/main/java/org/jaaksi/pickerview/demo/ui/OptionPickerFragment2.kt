@@ -16,7 +16,7 @@ class OptionPickerFragment2 : BaseFragment<FragmentOptionPickerBinding>(), View.
     OnOptionSelectListener {
     private lateinit var mPicker: OptionPicker
 
-    private var selectedOption1 = "pm"
+    private var selectedOption1 = "PM"
     private var selectedOption2 = "10"
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -24,9 +24,9 @@ class OptionPickerFragment2 : BaseFragment<FragmentOptionPickerBinding>(), View.
         binding.btnShow.setOnClickListener(this)
         mPicker = OptionPicker.Builder(requireContext(), 2, this).create()
         (mPicker.dialog() as? PickerDialog)?.binding?.run {
-            tvTitle.text = "选择地区"
+            tvTitle.text = "请选择时间"
         }
-        val list1 = listOf("am", "pm").map { OptionsInfo(it) }
+        val list1 = listOf("AM", "PM").map { OptionsInfo(it) }
         val list2 = (0..11).map { OptionsInfo("$it") }
         mPicker.setData(list1, list2)
         binding.btnShow.text = "$selectedOption1 $selectedOption2"
