@@ -3,6 +3,8 @@ package org.jaaksi.pickerview.util
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * 创建时间：2018年02月02日12:00 <br></br>
@@ -10,7 +12,6 @@ import java.util.Locale
  * 描述：时间工具类
  */
 object DateUtil {
-    const val ONE_DAY = 1000 * 60 * 60 * 24L
 
     @JvmStatic
     fun createDateFormat(format: String): SimpleDateFormat {
@@ -27,22 +28,46 @@ object DateUtil {
         return c[Calendar.DAY_OF_MONTH]
     }
 
+    // 判断两个时间戳是否是同一天
+    fun isSameDay(time1: Long, time2: Long): Boolean{
+        return time1.dayStart() == time2.dayStart()
+    }
+
     /**
-     * 获取两个时间相差的天数
-     *
-     * @param time1 time1
-     * @param time2 time2
-     * @return time1 - time2相差的天数
+     * 不能用时间戳差值 / 86400000, 夏令时会有误差
+     * @return endTime - startTime 相差的天数
      */
-    @JvmStatic
-    fun getDayOffset(time1: Long, time2: Long): Int {
-        // 将小的时间置为当天的0点
-        val offsetTime: Long = if (time1 > time2) {
-            time1 - time2.dayStart()
-        } else {
-            time1.dayStart() - time2
+    fun getIntervalDay(time1: Long, time2: Long): Int {
+        val cal1 = Calendar.getInstance().apply { timeInMillis = min(time1,time2) }
+        val cal2 = Calendar.getInstance().apply { timeInMillis = max(time1, time2) }
+
+        // 如果是同一年，直接计算 dayOfYear 差值
+        if (cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)) {
+            return if (time1 > time2)
+                -(cal2.get(Calendar.DAY_OF_YEAR) - cal1.get(Calendar.DAY_OF_YEAR))
+            else
+                cal2.get(Calendar.DAY_OF_YEAR) - cal1.get(Calendar.DAY_OF_YEAR)
         }
-        return (offsetTime / ONE_DAY).toInt()
+
+        // 跨年计算
+        var daysBetween = 0
+
+        // 1. 计算起始年剩余的天数
+        val daysLeftInYear1 = cal1.getActualMaximum(Calendar.DAY_OF_YEAR) - cal1.get(Calendar.DAY_OF_YEAR)
+        daysBetween += daysLeftInYear1
+
+        // 2. 计算中间完整年份的天数
+        var year = cal1.get(Calendar.YEAR) + 1
+        while (year < cal2.get(Calendar.YEAR)) {
+            val tempCal = Calendar.getInstance().apply { set(Calendar.YEAR, year) }
+            daysBetween += tempCal.getActualMaximum(Calendar.DAY_OF_YEAR)
+            year++
+        }
+
+        // 3. 计算结束年已过的天数
+        daysBetween += cal2.get(Calendar.DAY_OF_YEAR)
+
+        return if (time1 > time2) -daysBetween else daysBetween
     }
 
     fun Long.toCalendar(): Calendar {

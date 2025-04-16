@@ -4,9 +4,9 @@ import android.content.Context
 import org.jaaksi.pickerview.adapter.ArrayWheelAdapter
 import org.jaaksi.pickerview.adapter.NumericWheelAdapter
 import org.jaaksi.pickerview.dialog.IPickerDialog
+import org.jaaksi.pickerview.util.DateUtil
 import org.jaaksi.pickerview.util.DateUtil.createDateFormat
 import org.jaaksi.pickerview.util.DateUtil.getDayOfMonth
-import org.jaaksi.pickerview.util.DateUtil.getDayOffset
 import org.jaaksi.pickerview.widget.BasePickerView
 import org.jaaksi.pickerview.widget.BasePickerView.OnSelectedListener
 import org.jaaksi.pickerview.widget.PickerView
@@ -492,9 +492,9 @@ class TimePicker private constructor(
     private fun isSameDay(isStart: Boolean): Boolean {
         return if (hasType(TYPE_MIXED_DATE)) {
             if (isStart) {
-                getDayOffset(selectedDate.time, mStartDate.timeInMillis) == 0
+                DateUtil.isSameDay(mStartDate.timeInMillis,selectedDate.time)
             } else {
-                getDayOffset(selectedDate.time, mEndDate.timeInMillis) == 0
+                DateUtil.isSameDay(mEndDate.timeInMillis, selectedDate.time)
             }
         } else {
             val year =
@@ -516,8 +516,8 @@ class TimePicker private constructor(
             val isSameStartDay: Boolean
             val isSameEndDay: Boolean
             if (hasType(TYPE_MIXED_DATE)) {
-                isSameStartDay = getDayOffset(selectedDate.time, mStartDate.timeInMillis) == 0
-                isSameEndDay = getDayOffset(selectedDate.time, mEndDate.timeInMillis) == 0
+                isSameStartDay = DateUtil.isSameDay(selectedDate.time, mStartDate.timeInMillis)
+                isSameEndDay = DateUtil.isSameDay(selectedDate.time, mEndDate.timeInMillis)
             } else {
                 val year =
                     if (hasType(TYPE_YEAR)) mYearPicker!!.selectedItem!! else mSelectedDate!![Calendar.YEAR]
@@ -622,7 +622,7 @@ class TimePicker private constructor(
      * 获取指定日期距离第0个的offset
      */
     private fun offsetStart(calendar: Calendar): Int {
-        return getDayOffset(calendar.timeInMillis, mStartDate.timeInMillis)
+        return DateUtil.getIntervalDay(mStartDate.timeInMillis, calendar.timeInMillis)
     }
 
     private val selectedDate: Date

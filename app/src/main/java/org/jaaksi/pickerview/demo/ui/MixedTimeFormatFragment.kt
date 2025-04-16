@@ -52,7 +52,7 @@ class MixedTimeFormatFragment : BaseFragment<FragmentMixedtimeFormatBinding>(),
                 ): CharSequence {
                     if (type == TimePicker.TYPE_MIXED_DATE) {
                         val text: CharSequence
-                        val dayOffset = DateUtil.getDayOffset(value, System.currentTimeMillis())
+                        val dayOffset = DateUtil.getIntervalDay(System.currentTimeMillis(),value)
                         text = when (dayOffset) {
                             0 -> "今天"
 
