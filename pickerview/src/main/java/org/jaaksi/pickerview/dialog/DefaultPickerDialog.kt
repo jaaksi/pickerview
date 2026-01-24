@@ -34,14 +34,17 @@ class DefaultPickerDialog(context: Context) :
         super.onCreate(savedInstanceState)
         setCanceledOnTouchOutside(sDefaultCanceledOnTouchOutside)
         binding.btnCancel.setOnClickListener {
-            if (!picker.canSelected()) return@setOnClickListener  //  滑动未停止不响应点击事件
+            // 取消时无需强制停止，直接关闭即可
             dismiss()
             onPickerChooseListener?.onCancel()
-
         }
         binding.btnConfirm.setOnClickListener {
-            if (!picker.canSelected()) return@setOnClickListener
-            // 给用户拦截
+            // 1. 如果还在滑动，强制其立即停止并对齐，触发联动更新数据
+            if (!picker.canSelected()) {
+                picker.stopScroll()
+            }
+            
+            // 2. 给用户拦截
             if (onPickerChooseListener == null || onPickerChooseListener!!.onConfirm()) {
                 // 抛给picker去处理
                 dismiss()

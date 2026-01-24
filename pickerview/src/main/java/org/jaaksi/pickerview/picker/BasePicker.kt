@@ -166,6 +166,15 @@ abstract class BasePicker(protected var mContext: Context) {
     }
 
     /**
+     * 停止滚动
+     */
+    fun stopScroll() {
+        for (pickerView in mPickerViews) {
+            pickerView.stopScroll()
+        }
+    }
+
+    /**
      * setTag 用法同[View.setTag]
      *
      * @param key key R.id.xxx

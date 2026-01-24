@@ -461,6 +461,25 @@ abstract class BasePickerView<T> @JvmOverloads constructor(
         stopAutoScroll()
     }
 
+    /**
+     * 强制停止滚动并居中
+     */
+    fun stopScroll() {
+        if (isScrolling) {
+            cancelScroll()
+            if (mMoveLength != 0f) {
+                if (Math.abs(mMoveLength) > mItemSize / 2f) {
+                    mMoveLength = if (mMoveLength > 0) mItemSize.toFloat() else -mItemSize.toFloat()
+                } else {
+                    mMoveLength = 0f
+                }
+                checkCirculation()
+            }
+            notifySelected()
+            invalidate()
+        }
+    }
+
     // 检测当前选择的item位置
     private fun checkCirculation() {
         if (mMoveLength >= mItemSize) { // 向下滑动
@@ -752,7 +771,7 @@ abstract class BasePickerView<T> @JvmOverloads constructor(
         }
 
         override fun onFling(
-            e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float
+            e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float
         ): Boolean {
             // 惯性滑动
             if (isInertiaScroll) {
