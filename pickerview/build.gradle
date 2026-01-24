@@ -1,10 +1,9 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-//apply plugin: 'com.novoda.bintray-release'
-//apply from: 'publish.gradle'
 
 android {
-    compileSdkVersion 31
+    namespace 'org.jaaksi.pickerview'
+    compileSdkVersion 34
 
     defaultConfig {
         minSdkVersion 15
@@ -18,42 +17,37 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 
     buildFeatures {
         viewBinding true
     }
 
-    lintOptions {
+    lint {
         checkReleaseBuilds false
-        // Or, if you prefer, you can continue to check for errors in release builds,
-        // but continue the build even when errors are found:
         abortOnError false
     }
 
-    // 如果你开源库中有中文注释在根目录的build.gradle中的all加入格式
     tasks.withType(Javadoc) {
         options {
             encoding "UTF-8"
             charSet 'UTF-8'
-            links "http://docs.oracle.com/javase/7/docs/api"
+            links "http://docs.oracle.com/javase/8/docs/api"
         }
-
-        // 解决Javadoc 出错  Javadoc generation failed. Generated Javadoc options file (useful for troubleshooting):
         options.addStringOption('Xdoclint:none', '-quiet')
     }
 }
 
 dependencies {
-    implementation "androidx.core:core-ktx:1.6.0"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.4.2'
-    implementation 'com.google.android.material:material:1.6.1'
+    implementation "androidx.core:core-ktx:1.12.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 }

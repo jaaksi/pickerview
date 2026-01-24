@@ -2,16 +2,18 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 31
+    namespace 'org.jaaksi.pickerview.demo'
+    compileSdkVersion 34
 
     defaultConfig {
         applicationId "org.jaaksi.pickerview.demo"
         minSdkVersion 15
-        targetSdkVersion 31
+        targetSdkVersion 34
         versionCode 2
         versionName "1.0.1"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -20,32 +22,31 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
-    }
-
-    lintOptions {
-        checkReleaseBuilds false
-        abortOnError false
+        jvmTarget = '17'
     }
 
     buildFeatures {
         viewBinding true
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
     }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(':pickerview')
-//    implementation 'org.jaaksi:pickerview:3.0.2'
-    implementation 'com.google.code.gson:gson:2.8.6'
-    implementation "androidx.core:core-ktx:1.8.0"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.4.2'
-    implementation 'com.google.android.material:material:1.6.1'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation "androidx.core:core-ktx:1.12.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 }

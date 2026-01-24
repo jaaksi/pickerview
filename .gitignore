@@ -1,4 +1,3 @@
-/gradle.properties
 #Android generated
 bin
 gen
@@ -20,12 +19,9 @@ classes
 gen-external-apklibs
 
 #gradle
-.gradle
 local.properties
-gradlew
-gradlew.bat
-gradle/
 build/
+.gradle
 
 #vi
 *.swp
